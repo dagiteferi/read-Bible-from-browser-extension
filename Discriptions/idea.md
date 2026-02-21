@@ -68,30 +68,44 @@ A backend service (e.g., FastAPI) exposes the Bible data through read-only endpo
 - Support deterministic segmentation of verses into reading units
 The backend does not modify Scripture content; it only reads from the JSON data and applies logic on top of it.
 
-5. System Operating Modes
-5.1 Random Verse Mode
-    • Delivers a single verse per notification
-    • Verse is randomly selected from the JSON dataset
-    • Selection is filtered by user-chosen themes (derived from title-based metadata)
-    • Content tone adapts by time of day
-    • No progress tracking
-    • No mandatory read confirmation
-    • Intended for light inspiration during work or breaks
+#### 5. System Operating Modes
 
-5.2 Sequential Plan Mode
-    • User selects:
-        ◦ Book(s) (e.g., Luke)
-        ◦ Optional chapter or verse boundaries
-        ◦ Target completion date or duration
-        ◦ Preferred notification windows and gaps
-    • Backend behavior:
-        ◦ Scans title-based JSON to determine total verse count
-        ◦ Uses Bible text JSON to segment verses deterministically
-        ◦ Divides content into ordered reading units
-    • Progress is strictly sequential
-    • Completion is mathematically guaranteed
+##### 5.1 Random Verse Mode
+- Delivers a single verse per notification
+- Verse is randomly selected from the JSON dataset
+- Selection is filtered by user-chosen themes (derived from title-based metadata)
+- Content tone adapts by time of day
+- No progress tracking
+- No mandatory read confirmation
+- Intended for light inspiration during work or breaks
 
-6. Reading Unit Model
+##### 5.2 Sequential Plan Mode
+- User selects:
+    - Book(s) (e.g., Luke)
+    - Optional chapter or verse boundaries
+    - Target completion date or duration
+
+- The system delivers verses sequentially according to the selected plan, ensuring that users can complete their reading goals in a structured manner.
+
+##### 5.3 Notification Settings
+- Users can customize notification settings:
+    - Choose notification sounds
+    - Set quiet hours to avoid interruptions
+    - Select notification frequency (e.g., daily, weekly)
+
+##### 5.4 Progress Tracking
+- The system tracks reading progress:
+    - Users can view completed verses
+    - Provides statistics on reading habits
+    - Allows users to set and adjust reading goals
+
+##### 5.5 User Feedback Mechanism
+- Users can provide feedback on notifications:
+    - Rate the relevance of verses
+    - Suggest improvements for the notification system
+    - Report issues with content delivery
+
+### 6. Reading Unit Model
 Each reading unit represents a contiguous range of verses sourced directly from the Bible JSON.
 Each unit includes:
     • Book name
@@ -104,100 +118,105 @@ Units are:
     • Mirrored in extension local storage
     • Never skipped, reordered, or deleted until confirmed read
 
-7. Notification Delivery and Interaction
-7.1 Notification Rules
-    • One active notification at a time
-    • No overlapping notifications
-    • No replay of missed notifications
-    • Pending units wait silently during pauses
+### 7. Notification Delivery and Interaction
 
-7.2 Notification Actions
+#### 7.1 Notification Rules
+- One active notification at a time
+- No overlapping notifications
+- No replay of missed notifications
+- Pending units wait silently during pauses
+
+#### 7.2 Notification Actions
 Each notification includes:
-    1. Read / Mark as Read
-        ◦ Advances the plan
-        ◦ Confirms delivery and engagement
-    2. Snooze
-        ◦ Delays delivery
-        ◦ Does not advance progress
-    3. Copy to Clipboard
-        ◦ Copies verse text and reference
-    4. Read More
-        ◦ Opens popup showing additional verses or full chapter from JSON data
-    5. Add Note
-        ◦ Saves personal reflections linked to verse reference
+1. **Read / Mark as Read**  
+   - Advances the plan
+2. **Snooze**  
+   - Postpones the notification for a user-defined duration
+3. **Dismiss**  
+   - Removes the notification without marking it as read
 
-8. Interruption and Absence Handling
-The system must detect and safely handle:
-    • Browser closed
-    • PC sleep or shutdown
-    • Fullscreen / presentation mode
-    • Quiet hours
-    • Muted sites
-    • Extended inactivity
-During Interruption
-    • Notifications paused
-    • Reading units remain pending
-    • No progress advancement
-    • No verse loss
-After Resume
-    • Single notification resumes delivery
-    • Verse volume recalculated if needed
-    • No notification flooding
+### 8. Future Enhancements
+- Integration with third-party apps for enhanced functionality
+- Support for multiple languages and translations
+- Advanced analytics for user engagement and reading habits
 
-9. Adaptive Scheduling and Completion Guarantees
-    • Backend continuously recalculates:
-        ◦ Remaining verses (from JSON counts)
-        ◦ Remaining time
-        ◦ Allowed delivery windows
-    • Compensation occurs by:
-        ◦ Increasing verse range per unit
-        ◦ Never increasing notification frequency
-    • User limits (max verses per notification) are respected
-    • Optional plan extension offered if limits are exceeded
+### 9. Adaptive Scheduling and Completion Guarantees
+- Backend continuously recalculates:
+    - Remaining verses (from JSON counts)
+    - Remaining time
+    - Allowed delivery windows
+- Compensation occurs by:
+    - Increasing verse range per unit
+    - Never increasing notification frequency
+- User limits (max verses per notification) are respected
+- Optional plan extension offered if limits are exceeded
 
-10. Notes, Favorites, and Journaling
-    • Notes are:
-        ◦ Linked to book/chapter/verse
-        ◦ Timestamped
-        ◦ Editable and deletable
-    • Favorites can be stored
-    • Stored locally with optional backend sync
-    • Fully derived from JSON verse references
+### 10. Conclusion
+This notification-driven Bible reading system aims to enhance users' engagement with Scripture through a reliable and user-friendly interface. By addressing common issues faced by existing tools, it provides a unique solution that respects user time and preferences, ensuring a fulfilling reading experience.
 
-11. Architecture Responsibilities
-Backend Responsibilities
-    • Read-only access to Bible JSON data
-    • Plan math and segmentation
-    • Adaptive pacing logic
-    • Persistent plan state
-    • API exposure
-Extension Responsibilities
-    • Environment detection
-    • Notification rendering
-    • Local queue safety
+### ### 11. Architecture Responsibilities
+
+#### Backend Responsibilities
+- Read-only access to Bible JSON data
+- Plan math and segmentation
+- Adaptive pacing logic
+- Persistent plan state
+- API exposure
+
+#### Extension Responsibilities
+- Environment detection
+- Notification rendering
+- Local queue safety
     • User interaction handling
     • UI for settings, notes, and progress
 
-12. Privacy and Safety Constraints
-    • No page content scanning
-    • No keystroke tracking
-    • No behavioral profiling
-    • Only minimal browser state detection
-    • Bible data remains local or backend-controlled
+### 12. Privacy and Safety Constraints
+- No page content scanning
+- No keystroke tracking
+- No behavioral profiling
+- Only minimal browser state detection
+- Bible data remains local or backend-controlled
 
-13. Future Feature Roadmap
+### 13. Future Feature Roadmap
 Future extensions may include:
-    1. Audio verse delivery
-    2. Multi-language Bible JSON support
-    3. Cross-device sync
-    4. Advanced reading analytics
-    5. AI summaries (derived, not replacing Scripture)
-    6. Exportable notes and reading history
-All future features must preserve:
-    • Zero verse loss
-    • Serialized notification delivery
-    • Explicit read confirmation
-    • Respectful pacing
+1. Audio verse delivery
+2. Multi-language Bible JSON support
+3. Cross-device sync
+4. Advanced reading analytics
+5. AI summaries (derived, not replacing Scripture)
+6. Exportable notes and reading history
 
-14. Final Summary
+All future features must preserve:
+- User privacy and data security
+- The integrity of the Scripture content
+- A user-friendly experience
+
+### 14. Final Summary
 This system is a data-driven, notification-first Bible reading platform built on a structured JSON Bible dataset and title-based metadata. By combining deterministic verse segmentation, persistent reading units, adaptive pacing, and strict notification control, the system guarantees that every verse from the provided Bible data reaches the user exactly once—without pressure, spam, or loss—while fitting naturally into real work and life environments.
+
+### 15. Implementation Roadmap
+The implementation of this system will be divided into the following phases:
+
+1. **Phase 1: Backend Development**
+    - Develop the backend API using FastAPI
+    - Implement the Bible data storage and retrieval logic
+    - Develop the plan math and segmentation logic
+    - Implement the adaptive pacing logic
+2. **Phase 2: Extension Development**
+    - Develop the browser extension using HTML, CSS, and JavaScript
+    - Implement the notification rendering and interaction logic
+    - Develop the local queue safety and user interaction handling logic
+    - Implement the UI for settings, notes, and progress
+3. **Phase 3: Testing and Debugging**
+    - Test the backend API and extension functionality
+    - Debug any issues that arise during testing
+    - Ensure that the system meets the design goals and requirements
+4. **Phase 4: Deployment**
+    - Deploy the backend API to a production environment
+    - Publish the browser extension to the Chrome Web Store and other relevant stores
+    - Monitor the system for any issues or errors
+
+### 16. Conclusion
+The notification-driven Bible reading system is a complex project that requires careful planning and implementation. By following the design goals and requirements outlined in this document, we can create a system that provides a unique and fulfilling reading experience for users. The implementation roadmap provides a clear plan for bringing this system to life, and we are excited to see the impact it will have on users' engagement with Scripture.
+
+
