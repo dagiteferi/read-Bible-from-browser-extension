@@ -191,3 +191,60 @@ All future features must preserve:
 This system is a data-driven, notification-first Bible reading platform built on a structured JSON Bible dataset and title-based metadata. By combining deterministic verse segmentation, persistent reading units, adaptive pacing, and strict notification control, the system guarantees that every verse from the provided Bible data reaches the user exactly once—without pressure, spam, or loss—while fitting naturally into real work and life environments.
 
 
+### 15. Architect Assumptions and Design Decisions
+
+1. **Verse Loss Scope**  
+   - Zero verse loss is guaranteed **per device only**.  
+   - No cross-device synchronization is required in the initial version.
+
+2. **PC / Browser Closed Behavior**  
+   - If the browser or PC is closed during **user-defined working hours**, notifications are **queued** and delivered when the browser is reopened.  
+   - Missed notifications are **not lost**; the system compensates by adjusting verse count per notification.  
+   - Outside working hours, notifications are not delivered.
+
+3. **Read Status Source of Truth**  
+   - Hybrid approach:  
+     - **Backend** stores the reading plan, verse sequences, and read state.  
+     - **Local storage** caches read/unread states to handle temporary offline periods.  
+   - Synchronization occurs automatically when the browser reconnects.
+
+4. **Maximum Verses per Notification**  
+   - Dynamically calculated based on:  
+     - User’s reading goal  
+     - Total verses in the plan  
+     - Notification interval  
+   - Ensures plan completion without overwhelming the user.
+
+5. **Plan Mutability**  
+   - Users can **pause, extend, or modify reading plans** at any time.  
+   - Changes dynamically recalculate remaining verses and notification schedule.
+
+6. **Notification Scope**  
+   - Notifications are **browser-only**; no mobile or OS-level notifications.  
+   - Interactive actions: Read/Mark as Read, Snooze, Dismiss, Copy to Clipboard, Read More, Add Note.
+
+7. **Browser Support**  
+   - Primary: **Chromium-based browsers** (Chrome, Edge).  
+   - Goal: **Maximize compatibility** with other browsers (Firefox, Brave) where feasible.
+
+8. **Data Model**  
+   - Bible content is sourced from **pre-existing JSON dataset** (Amharic).  
+   - Title-based JSON metadata is used for:  
+     - Verse counts  
+     - Precomputing plans  
+     - Thematic filtering for random verses  
+   - Backend exposes **read-only API endpoints**.
+
+9. **Adaptive Scheduling**  
+   - The system adapts delivery based on:  
+     - Working hours  
+     - User absence  
+     - Fullscreen/presentation mode  
+     - Paused plans  
+
+10. **Limitations for Initial Version**  
+    - No cross-device sync  
+    - No mobile app notifications  
+    - No social/collaboration features beyond copy/export of notes
+
+I
