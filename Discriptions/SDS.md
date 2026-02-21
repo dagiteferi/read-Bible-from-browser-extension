@@ -41,18 +41,18 @@ This SDS translates the provided Idea + SRS (v1.1) into a complete, production-g
 ```mermaid
 graph TB
     subgraph "Browser Extension (Manifest V3)"
-        A[Service Worker (background.ts)] 
-        B[React Popup UI (Vite + TypeScript)]
-        C[chrome.storage.local + sync]
-        D[Chrome Notifications API + Alarms API + Fullscreen API]
+        A["Service Worker (background.ts)"] 
+        B["React Popup UI (Vite + TypeScript)"]
+        C["chrome.storage.local + sync"]
+        D["Chrome Notifications API + Alarms API + Fullscreen API"]
     end
 
     subgraph "Backend (FastAPI)"
-        E[API Layer]
-        F[Bible Service (in-memory JSON)]
-        G[Plan Service]
-        H[Scheduler Service]
-        I[PostgreSQL]
+        E["API Layer"]
+        F["Bible Service (in-memory JSON)"]
+        G["Plan Service"]
+        H["Scheduler Service"]
+        I["PostgreSQL"]
     end
 
     A <--> E
@@ -64,7 +64,7 @@ graph TB
     E <--> H
     G <--> I
     H <--> I
-    F <--> BibleJSON[Static Bible JSON + Metadata JSON\n(on disk, loaded at startup)]
+    F <--> BibleJSON["Static Bible JSON + Metadata JSON<br>(on disk, loaded at startup)"]
 ```
 
 
