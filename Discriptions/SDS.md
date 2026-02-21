@@ -65,6 +65,7 @@ graph TB
     G <--> I
     H <--> I
     F <--> BibleJSON[Static Bible JSON + Metadata JSON\n(on disk, loaded at startup)]
+```
 
 
 ## 3. Technology Stack (Production Choices)
