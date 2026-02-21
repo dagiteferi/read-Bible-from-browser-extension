@@ -248,3 +248,18 @@ This system is a data-driven, notification-first Bible reading platform built on
     - No social/collaboration features beyond copy/export of notes
 
 I
+###16. Edge Cases to Consider
+
+The following situations should be handled by the system design:
+
+** PC sleeps during working hours **
+   – notifications should be queued and delivered when possible.
+
+** Browser closed during delivery windows ** 
+   – pending verses should not be lost and should be delivered once the browser reopens.
+
+** User modifies plan mid-way ** 
+   – plan adjustments should dynamically recalculate remaining verses and schedule.
+
+** Missed notifications stacking **
+   – system should avoid overwhelming the user while ensuring zero verse loss.
