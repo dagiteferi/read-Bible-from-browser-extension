@@ -3,7 +3,7 @@
 **Project**: Notification-Driven Bible Reading Browser Extension  
 **Version**: 1.0  
 **Date**: February 21, 2026  
-**Author**: Senior Solution Architect (12+ years – Google, Meta, Amazon)  
+**Author**: Dagmawi
 **Status**: FINAL – IMPLEMENTATION-READY  
 
 
