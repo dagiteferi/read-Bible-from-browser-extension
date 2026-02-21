@@ -3,3 +3,19 @@ venv
 data/
 __pycache__/
 steps.txt
+
+
+# backend
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+backend/bible_data/*.json   
+
+# extension
+extension/node_modules/
+extension/dist/
+extension/build/
+
+# general
+.DS_Store
+*.log

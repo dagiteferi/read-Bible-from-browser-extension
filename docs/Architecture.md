@@ -270,3 +270,98 @@ root/
 ├── .github/workflows/ci.yml
 └── README.md
 ```
+
+
+```
+
+/home/dagi/Documents/Bible-project/
+├── read-Bible-from-browser-extension/          # Main project root (you can rename to bible-extension if you want)
+│   ├── docs/                                   # All documentation (renamed from Discriptions for clarity)
+│   │   ├── Architecture.md                     # SAD (Solution Architecture Document)
+│   │   ├── SDS.md                              # Software Design Specification
+│   │   ├── SRS.md                              # Software Requirements Specification
+│   │   └── idea.md                             # Original idea document
+│   │
+│   ├── backend/                                # FastAPI backend – single monolithic service
+│   │   ├── app/
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py                         # FastAPI app entry point
+│   │   │   ├── core/
+│   │   │   │   ├── config.py                   # Settings, env vars
+│   │   │   │   ├── database.py                 # Engine, session
+│   │   │   │   └── security.py                 # Rate limiting, CSP helpers
+│   │   │   ├── api/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── v1/
+│   │   │   │       ├── __init__.py
+│   │   │   │       ├── endpoints/
+│   │   │   │       │   ├── bible.py            # /books, /metadata, /verses
+│   │   │   │       │   ├── plans.py            # /plan/create, /plan/{id}, etc.
+│   │   │   │       │   ├── random.py           # /v1/random-verse
+│   │   │   │       │   └── units.py            # /unit/{id}/read, /plan/{id}/next-unit
+│   │   │   ├── models/                         # SQLAlchemy models
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── device.py
+│   │   │   │   ├── plan.py
+│   │   │   │   ├── reading_unit.py
+│   │   │   │   └── feedback.py
+│   │   │   ├── schemas/                        # Pydantic schemas (input/output)
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── plan.py
+│   │   │   │   ├── unit.py
+│   │   │   │   └── random_verse.py
+│   │   │   ├── services/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── bible_service.py            # Load JSON, get_range, random, count
+│   │   │   │   ├── plan_service.py             # Create, update, segment logic
+│   │   │   │   └── scheduler_service.py        # Compensation, next timestamp
+│   │   │   ├── utils/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── time_helpers.py             # working/quiet hours logic
+│   │   │   │   └── compensation.py             # missed days + new verses calc
+│   │   │   └── db/
+│   │   │       ├── __init__.py
+│   │   │       └── migrations/                 # Alembic migration files
+│   │   ├── bible_data/                         # Static files (gitignored or LFS)
+│   │   │   ├── bible.json                      # Full Amharic Bible
+│   │   │   └── metadata.json                   # Book/chapter/verse counts + tags
+│   │   ├── Dockerfile
+│   │   ├── requirements.txt
+│   │   ├── alembic.ini
+│   │   └── gunicorn.conf.py
+│   │
+│   ├── extension/                              # Browser extension (Manifest V3 + React)
+│   │   ├── public/
+│   │   │   ├── icon-128.png                    # Bible icon
+│   │   │   └── manifest.json                   # Manifest V3 file
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   │   ├── Dashboard.tsx
+│   │   │   │   ├── CreatePlanForm.tsx
+│   │   │   │   ├── ProgressChart.tsx           # Recharts
+│   │   │   │   └── SettingsForm.tsx
+│   │   │   ├── pages/
+│   │   │   │   ├── index.tsx                   # Dashboard
+│   │   │   │   ├── create-plan.tsx
+│   │   │   │   ├── progress.tsx
+│   │   │   │   └── settings.tsx
+│   │   │   ├── background.ts                   # Service Worker (alarms, notifications)
+│   │   │   ├── popup.tsx                       # Main popup entry
+│   │   │   ├── types.ts                        # LocalPlan interface, etc.
+│   │   │   └── utils/
+│   │   │       ├── api.ts                      # Fetch wrappers
+│   │   │       ├── notification.ts             # createNotification helper
+│   │   │       └── envCheck.ts                 # isValidDeliveryWindow
+│   │   ├── vite.config.ts
+│   │   ├── tsconfig.json
+│   │   ├── tailwind.config.js
+│   │   ├── package.json
+│   │   └── index.html
+│   │
+│   ├── docker-compose.yml                      # Local dev: backend + postgres
+│   ├── .github/
+│   │   └── workflows/
+│   │       └── ci-deploy.yml                   # GitHub Actions → Render
+│   └── README.md                               # Project overview + setup instructions
+
+```
