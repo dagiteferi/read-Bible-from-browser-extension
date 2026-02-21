@@ -76,7 +76,7 @@ The system comprises:
 - A backend service ```FastAPI ``` for Bible data exposure and plan management.
 - Integration with static Amharic Bible JSON datasets.
 
-Key features include notification-only Scripture delivery, adaptive scheduling, and progress tracking. Out-of-scope: ```Cross-device sync ``` ```mobile support ``` ```multi-language Bibles ``` ```social features``.
+Key features include notification-only Scripture delivery, adaptive scheduling, and progress tracking. Out-of-scope: ```Cross-device sync ``` ```mobile support ``` ```multi-language Bibles ``` ```social features```.
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
 - **Verse**: A single unit of Bible text from the JSON dataset.
@@ -133,7 +133,7 @@ This system addresses deficiencies in existing Bible tools by providing interrup
 ## 3. External Interface Requirements
 
 ### 3.1 User Interfaces
-- **Extension Popup**: HTML/JS UI for plan setup, settings, progress.
+- **Extension Popup**: React UI for plan setup, settings, progress.
 - **Notifications**: Browser-native with verse text and buttons.
 
 ### 3.2 Hardware Interfaces
