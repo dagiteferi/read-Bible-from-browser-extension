@@ -69,15 +69,14 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-This SRS document provides a comprehensive, unambiguous specification of the functional and non-functional requirements for the Notification-Driven Bible Reading Browser Extension. It ensures that developers can implement the system without further clarification, adhering to best practices for reliability, user respect, and zero verse loss. The document is structured to facilitate traceability, testing, and maintenance, drawing from enterprise standards at Google, Meta, and Amazon.
-
+This SRS document provides a comprehensive, unambiguous specification of the functional and non-functional requirements for the Notification-Driven Bible Reading Browser Extension. It ensures that developers can implement the system without confusion, adhering to best practices for reliability, user respect, and zero verse loss. The document is structured to facilitate traceability, testing, and maintenance, drawing from enterprise standards.
 ### 1.2 Scope
 The system comprises:
 - A browser extension for user interaction and notification delivery.
-- A backend service (e.g., FastAPI) for Bible data exposure and plan management.
+- A backend service ```FastAPI ``` for Bible data exposure and plan management.
 - Integration with static Amharic Bible JSON datasets.
 
-Key features include notification-only Scripture delivery, adaptive scheduling, and progress tracking. Out-of-scope: Cross-device sync, mobile support, multi-language Bibles, social features.
+Key features include notification-only Scripture delivery, adaptive scheduling, and progress tracking. Out-of-scope: ```Cross-device sync ``` ```mobile support ``` ```multi-language Bibles ``` ```social features``.
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
 - **Verse**: A single unit of Bible text from the JSON dataset.
