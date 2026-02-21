@@ -175,18 +175,18 @@ CREATE INDEX idx_units_plan ON reading_units(plan_id);
 In production packed extensions: alarms can be delayed by Chrome for battery reasons.
 
 ```ts
-// Create periodic alarm
-chrome.alarms.create('check-delivery', { periodInMinutes: 1 }); // safe & reliable
 
-// Alarm listener
+chrome.alarms.create('check-delivery', { periodInMinutes: 1 }); 
+
+
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== 'check-delivery') return;
   
-  // Check environment: visibility, fullscreen, quiet hours
+ 
   const envOK = await isValidDeliveryWindow();
   if (!envOK) return;
   
-  // Call backend – backend returns exact next unit or "too_early"
+
   const unit = await fetchNextUnit();
   if (unit) createNotification(unit);
 });
