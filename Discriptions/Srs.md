@@ -247,3 +247,42 @@ FR-4.6.2: MUST ensure zero verse loss per device.
   "index": "int",
   "state": "enum(pending, delivered, read)"
 }
+```
+
+## Plan Schema (JSON):
+```json
+{
+  {
+  "id": "string",
+  "user_id": "string (optional)",
+  "books": ["array of strings"],
+  "boundaries": {"chapter_start": "int", "verse_start": "int", "chapter_end": "int", "verse_end": "int"},
+  "target_date": "date",
+  "frequency": "enum(daily, weekly)",
+  "quiet_hours": {"start": "time", "end": "time"},
+  "max_verses_per_unit": "int",
+  "units": ["array of Reading Units"],
+  "state": "enum(active, paused)"
+}
+}
+```
+
+## Verse Schema (JSON, from dataset):
+```json
+{
+  "book": "string",
+  "chapter": "int",
+  "verse": "int",
+  "text": "string"
+}
+```
+
+## Metadata Schema (JSON):
+```json
+{
+  "book": "string",
+  "chapter_count": "int",
+  "verse_counts": ["array of ints per chapter"],
+  "tags": ["array of strings (themes)"]
+}
+```
