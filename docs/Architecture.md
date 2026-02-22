@@ -16,7 +16,7 @@ This is a **single-backend, notification-first** Bible reading extension (Manife
 - All Scripture stays read-only from static Amharic JSON files.
 - Backend is **one monolithic FastAPI service** (no microservices).
 - Everything is **100% free** for users and development (Render free tier + GitHub + Docker).
-- The system is **fast** (sub-100ms API), **scalable** (async + connection pooling), **secure** (Google-level privacy), and **maintainable** (clean folder structure, type-safe, 100% traceable to SRS v1.1 + Idea doc).
+- The system is **fast** (sub-100ms API), **scalable** (async + connection pooling), **secure** , and **maintainable** (clean folder structure, type-safe, 100% traceable to SRS v1.1 + Idea doc).
 
 ---
 
