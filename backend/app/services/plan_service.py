@@ -166,112 +166,6 @@ class PlanService:
             out.append((unit_book, unit_ch, unit_vs, unit_ve))
         return out
 
-    def _segment_from_cursor(
-        self,
-        book_meta: list[tuple[str, list[int]]],
-        books: list[str],
-        boundaries: dict | None,
-        verses_per_unit: int,
-        start_book_index: int,
-        start_ch: int,
-        start_v: int,
-    ) -> list[tuple[str, int, int, int]]:
-        """
-        Produce segments for the remaining part of the plan, starting at a specific
-        (book_index, chapter, verse). Used for plan extension while preserving
-        already-read units (FR-4.4.3).
-        """
-        b = boundaries or {}
-        global_ch_start = b.get("chapter_start", 1)
-        global_v_start = b.get("verse_start", 1)
-        global_ch_end = b.get("chapter_end")
-        global_v_end = b.get("verse_end")
-
-        out: list[tuple[str, int, int, int]] = []
-        acc = 0
-        unit_book, unit_ch, unit_vs, unit_ve = "", 0, 0, 0
-        n_books = len(books)
-
-        for bi, (book, v_counts) in enumerate(book_meta):
-            if bi < start_book_index:
-                continue  # already fully read
-            nch = len(v_counts)
-            if n_books == 1:
-                start_ch_global, start_v_global = global_ch_start, global_v_start
-                end_ch_global = global_ch_end if global_ch_end is not None else nch
-                end_v_global = (
-                    global_v_end
-                    if global_v_end is not None
-                    else (v_counts[end_ch_global - 1] if end_ch_global <= nch and nch > 0 else 1)
-                )
-            else:
-                if bi == 0:
-                    start_ch_global, start_v_global = global_ch_start, global_v_start
-                    end_ch_global, end_v_global = (
-                        nch,
-                        v_counts[nch - 1] if v_counts else 1,
-                    )
-                elif bi == n_books - 1:
-                    start_ch_global, start_v_global = 1, 1
-                    end_ch_global = global_ch_end if global_ch_end is not None else nch
-                    end_v_global = (
-                        global_v_end
-                        if global_v_end is not None
-                        else (v_counts[end_ch_global - 1] if end_ch_global <= nch and nch > 0 else 1)
-                    )
-                else:
-                    start_ch_global, start_v_global = 1, 1
-                    end_ch_global, end_v_global = (
-                        nch,
-                        v_counts[nch - 1] if v_counts else 1,
-                    )
-
-            # Effective start within this book considering the cursor
-            if bi == start_book_index:
-                eff_start_ch = max(start_ch_global, start_ch)
-                if start_ch > start_ch_global:
-                    eff_start_v = start_v
-                else:
-                    eff_start_v = max(start_v, start_v_global)
-            else:
-                eff_start_ch = start_ch_global
-                eff_start_v = start_v_global
-
-            if eff_start_ch > end_ch_global:
-                continue  # nothing left in this book
-
-            for c in range(eff_start_ch, end_ch_global + 1):
-                if c < 1 or c > len(v_counts):
-                    continue
-                vc = v_counts[c - 1]
-                if c == eff_start_ch:
-                    low = eff_start_v
-                else:
-                    low = 1
-                if c == end_ch_global:
-                    high = end_v_global
-                else:
-                    high = vc
-                if high < low:
-                    continue
-                for v in range(low, high + 1):
-                    if acc == 0:
-                        unit_book, unit_ch, unit_vs, unit_ve = book, c, v, v
-                        acc = 1
-                    else:
-                        if unit_book == book and unit_ch == c and unit_ve == v - 1 and acc < verses_per_unit:
-                            unit_ve = v
-                            acc += 1
-                        else:
-                            out.append((unit_book, unit_ch, unit_vs, unit_ve))
-                            unit_book, unit_ch, unit_vs, unit_ve = book, c, v, v
-                            acc = 1
-                    if acc == verses_per_unit:
-                        out.append((unit_book, unit_ch, unit_vs, unit_ve))
-                        acc = 0
-        if acc > 0:
-            out.append((unit_book, unit_ch, unit_vs, unit_ve))
-        return out
     async def get_plan(self, plan_id: uuid.UUID) -> Plan | None:
         r = await self.db.execute(select(Plan).where(Plan.id == plan_id))
         return r.scalar_one_or_none()
@@ -301,7 +195,7 @@ class PlanService:
     async def extend_plan(
         self, plan_id: uuid.UUID, additional_days: int | None = None
     ) -> Plan | None:
-        """FR-4.4.3: Extend plan target_date and recalculate remaining units; preserve read states."""
+        """Extend plan target_date and recalculate remaining units; preserve read states."""
         plan = await self.get_plan(plan_id)
         if not plan:
             return None
@@ -316,6 +210,7 @@ class PlanService:
             .limit(1)
         )
         last_read = r.scalar_one_or_none()
+        last_read_index = last_read.unit_index if last_read else -1
 
         # Get all units to find the continuation point
         r2 = await self.db.execute(
@@ -363,44 +258,82 @@ class PlanService:
         # Find where to continue: get the book/chapter/verse from first pending unit
         first_pending = remaining_units[0]
 
+        # Preserve read units
+        read_units = [u for u in all_units if u.state == "read"]
+
         # Delete all pending/delivered units
         for u in remaining_units:
             await self.db.delete(u)
         await self.db.flush()
 
         # Re-segment remaining verses starting from first_pending's position
-        try:
-            start_book_index = plan.books.index(first_pending.book)
-        except ValueError:
-            # Should not happen, but fallback: no further units
-            plan.updated_at = datetime.utcnow()
-            await self.db.flush()
-            return plan
+        new_units = []
+        current_book = first_pending.book
+        current_chapter = first_pending.chapter
+        current_verse = first_pending.verse_start
+        unit_index = first_pending.unit_index
 
-        segments = self._segment_from_cursor(
-            book_meta=book_meta,
-            books=plan.books,
-            boundaries=plan.boundaries,
-            verses_per_unit=verses_per_unit,
-            start_book_index=start_book_index,
-            start_ch=first_pending.chapter,
-            start_v=first_pending.verse_start,
-        )
+        verses_left = remaining_verses
 
-        # Determine starting unit_index for new units
-        start_index = (last_read.unit_index + 1) if last_read else 0
-        for offset, (book, chapter, vs, ve) in enumerate(segments):
-            self.db.add(
-                ReadingUnit(
-                    plan_id=plan.id,
-                    book=book,
-                    chapter=chapter,
-                    verse_start=vs,
-                    verse_end=ve,
-                    unit_index=start_index + offset,
-                    state="pending",
-                )
+        def advance_position(book, chapter, verse, book_meta):
+            verse_counts = dict(book_meta)
+            while verses_left > 0:
+                max_verse = verse_counts.get(book, [0])[chapter - 1] if chapter - 1 < len(verse_counts.get(book, [])) else 0
+                if verse < max_verse:
+                    return book, chapter, verse + 1
+                else:
+                    # Move to next chapter or book
+                    chapter += 1
+                    if chapter > len(verse_counts.get(book, [])):
+                        # Move to next book
+                        book_index = [b for b, _ in book_meta].index(book)
+                        if book_index + 1 < len(book_meta):
+                            book = book_meta[book_index + 1][0]
+                            chapter = 1
+                            verse = 1
+                        else:
+                            return None, None, None
+                    else:
+                        verse = 1
+            return book, chapter, verse
+
+        while verses_left > 0:
+            # Calculate verses in this unit
+            verses_in_unit = min(verses_per_unit, verses_left)
+            # Calculate verse_end
+            verse_end = current_verse + verses_in_unit - 1
+            # Check if verse_end exceeds chapter limit
+            verse_counts = dict(book_meta)
+            max_verse = verse_counts.get(current_book, [0])[current_chapter - 1] if current_chapter - 1 < len(verse_counts.get(current_book, [])) else 0
+            if verse_end > max_verse:
+                verse_end = max_verse
+
+            # Create new ReadingUnit
+            new_unit = ReadingUnit(
+                plan_id=plan_id,
+                book=current_book,
+                chapter=current_chapter,
+                verse_start=current_verse,
+                verse_end=verse_end,
+                unit_index=unit_index,
+                state="pending",
             )
+            new_units.append(new_unit)
+
+            # Advance position
+            verses_left -= (verse_end - current_verse + 1)
+            current_book, current_chapter, current_verse = advance_position(
+                current_book, current_chapter, verse_end + 1, book_meta
+            )
+            unit_index += 1
+
+        # Add new units to DB
+        for unit in new_units:
+            self.db.add(unit)
+
+        # Preserve read units by re-adding them
+        for unit in read_units:
+            self.db.add(unit)
 
         plan.updated_at = datetime.utcnow()
         await self.db.flush()
