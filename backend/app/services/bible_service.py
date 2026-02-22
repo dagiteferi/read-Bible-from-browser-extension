@@ -1,5 +1,4 @@
 import random
-from collections import defaultdict
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -109,43 +108,78 @@ class BibleService:
         themes: list[str],
         time_of_day: str | None = None,
     ) -> RandomVerseResponse | None:
-        """SDS: get_random_verse(themes, timeOfDay). FR-4.1.1: filter by themes; FR-4.1.2: time tone."""
+        """
+        SDS: get_random_verse(themes, timeOfDay).
+        FR-4.1.1: filter by themes.
+        FR-4.1.2: adapt selection based on time_of_day bucket using topic_index.
+        """
+        # Load all topics once for filtering
+        r_topics = await self.db.execute(select(BibleTopic))
+        topics = list(r_topics.scalars().all())
+        if not topics:
+            # No topic-based data; fallback to plain random verse
+            return await self._random_verse_from_db()
 
-        effective_themes = list(themes)
+        # 1) Filter by explicit themes (substring match, case-insensitive)
+        candidate_topics = topics
+        if themes:
+            lowered = [t.lower() for t in themes]
+            candidate_topics = [
+                t for t in topics if any(key in t.topic.lower() for key in lowered)
+            ]
 
+        # 2) If time_of_day is provided, narrow candidates into buckets by topic_index
         if time_of_day:
-            # Map time_of_day to additional themes for tone adaptation
-            if time_of_day == "morning":
-                effective_themes.extend(["hope", "new beginnings", "encouragement", "guidance"])
-            elif time_of_day == "afternoon":
-                effective_themes.extend(["wisdom", "perseverance", "strength", "guidance"])
-            elif time_of_day == "evening":
-                effective_themes.extend(["peace", "rest", "comfort", "reflection"])
-            # Remove duplicates
-            effective_themes = list(set(effective_themes))
-
-        if effective_themes:
-            r = await self.db.execute(
-                select(BibleTopicVerse, BibleTopic)
-                .join(BibleTopic, BibleTopicVerse.topic_id == BibleTopic.id)
-                .where(BibleTopic.topic.in_(effective_themes))
+            bucketed = self._filter_topics_by_time_of_day(
+                candidate_topics if candidate_topics else topics,
+                time_of_day,
             )
-            rows = r.all()
-            if not rows:
-                # Fallback: unfiltered random from all verses if no themes match
-                return await self._random_verse_from_db()
-            tv, topic = random.choice(rows)
-            return RandomVerseResponse(
-                book="",  # topic verse has book_and_verse string
-                chapter=0,
-                verse=0,
-                text=tv.text,
-                book_and_verse=tv.book_and_verse or "",
-            )
-        return await self._random_verse_from_db(time_of_day=time_of_day) # Pass time_of_day to fallback
+            if bucketed:
+                candidate_topics = bucketed
 
-    async def _random_verse_from_db(self, time_of_day: str | None = None) -> RandomVerseResponse | None:
-        # time_of_day is passed for potential future use, but currently not used for unfiltered random selection
+        # If still no candidates, fallback to full DB random
+        if not candidate_topics:
+            return await self._random_verse_from_db()
+
+        topic = random.choice(candidate_topics)
+        r_verses = await self.db.execute(
+            select(BibleTopicVerse).where(BibleTopicVerse.topic_id == topic.id)
+        )
+        verses = list(r_verses.scalars().all())
+        if not verses:
+            # Topic has no verses; fallback
+            return await self._random_verse_from_db()
+        tv = random.choice(verses)
+        return RandomVerseResponse(
+            book="",
+            chapter=0,
+            verse=0,
+            text=tv.text,
+            book_and_verse=tv.book_and_verse or "",
+        )
+
+    def _filter_topics_by_time_of_day(
+        self,
+        topics: list[BibleTopic],
+        time_of_day: str,
+    ) -> list[BibleTopic]:
+        """Bucket topics by topic_index to roughly adapt tone by time of day."""
+        if not topics:
+            return []
+        sorted_topics = sorted(topics, key=lambda t: t.topic_index)
+        n = len(sorted_topics)
+        if n == 1:
+            return sorted_topics
+        # Split into three buckets: morning (first third), afternoon (middle), evening (last)
+        one_third = max(1, n // 3)
+        if time_of_day == "morning":
+            return sorted_topics[:one_third]
+        if time_of_day == "afternoon":
+            return sorted_topics[one_third : 2 * one_third]
+        # evening or anything else -> last third
+        return sorted_topics[2 * one_third :]
+
+    async def _random_verse_from_db(self) -> RandomVerseResponse | None:
         """Random verse from bible_verses."""
         r = await self.db.execute(
             select(func.count(BibleVerse.id))
