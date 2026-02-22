@@ -19,3 +19,10 @@ extension/build/
 # general
 .DS_Store
 *.log
+
+
+.cursor/
+.vscode/
+.idea/
+*.swp
+.DS_Store
