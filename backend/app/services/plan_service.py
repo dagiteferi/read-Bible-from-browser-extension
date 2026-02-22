@@ -200,7 +200,7 @@ class PlanService:
         if not plan:
             return None
         if plan.state == "completed":
-            return plan  # No extension needed
+            return plan  
 
         # Find last read unit to determine where to continue
         r = await self.db.execute(
