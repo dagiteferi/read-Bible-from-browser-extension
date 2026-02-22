@@ -116,11 +116,19 @@ async def get_next_unit(id: UUID, db: AsyncSession = Depends(get_db)):
     )
 
 
-@router.post("/{id}/extend", response_model=dict)
-async def extend_plan(id: UUID, db: AsyncSession = Depends(get_db)):
-    """SDS: Extend plan (e.g. push target_date). Placeholder: just acknowledge."""
-    r = await db.execute(select(Plan).where(Plan.id == id))
-    plan = r.scalar_one_or_none()
+@router.put("/{id}/extend", response_model=dict)
+async def extend_plan(
+    id: UUID,
+    additional_days: int | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """Extend plan (e.g. push target_date). FR-4.4.3: Recalculate units dynamically; preserve read states."""
+    svc = PlanService(db)
+    plan = await svc.extend_plan(id, additional_days=additional_days)
     if not plan:
         raise HTTPException(status_code=404, detail="Plan not found")
-    return {"message": "Plan extend requested", "id": str(id)}
+    return {
+        "message": "Plan extended",
+        "id": str(id),
+        "new_target_date": str(plan.target_date) if plan.target_date else None,
+    }

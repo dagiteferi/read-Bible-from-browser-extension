@@ -110,16 +110,29 @@ class BibleService:
         time_of_day: str | None = None,
     ) -> RandomVerseResponse | None:
         """SDS: get_random_verse(themes, timeOfDay). FR-4.1.1: filter by themes; FR-4.1.2: time tone."""
-        # If themes: pick from bible_topic_verses where topic name in themes
-        if themes:
+
+        effective_themes = list(themes)
+
+        if time_of_day:
+            # Map time_of_day to additional themes for tone adaptation
+            if time_of_day == "morning":
+                effective_themes.extend(["hope", "new beginnings", "encouragement", "guidance"])
+            elif time_of_day == "afternoon":
+                effective_themes.extend(["wisdom", "perseverance", "strength", "guidance"])
+            elif time_of_day == "evening":
+                effective_themes.extend(["peace", "rest", "comfort", "reflection"])
+            # Remove duplicates
+            effective_themes = list(set(effective_themes))
+
+        if effective_themes:
             r = await self.db.execute(
                 select(BibleTopicVerse, BibleTopic)
                 .join(BibleTopic, BibleTopicVerse.topic_id == BibleTopic.id)
-                .where(BibleTopic.topic.in_(themes))
+                .where(BibleTopic.topic.in_(effective_themes))
             )
             rows = r.all()
             if not rows:
-                # Fallback: unfiltered random from all verses
+                # Fallback: unfiltered random from all verses if no themes match
                 return await self._random_verse_from_db()
             tv, topic = random.choice(rows)
             return RandomVerseResponse(
@@ -129,9 +142,10 @@ class BibleService:
                 text=tv.text,
                 book_and_verse=tv.book_and_verse or "",
             )
-        return await self._random_verse_from_db()
+        return await self._random_verse_from_db(time_of_day=time_of_day) # Pass time_of_day to fallback
 
-    async def _random_verse_from_db(self) -> RandomVerseResponse | None:
+    async def _random_verse_from_db(self, time_of_day: str | None = None) -> RandomVerseResponse | None:
+        # time_of_day is passed for potential future use, but currently not used for unfiltered random selection
         """Random verse from bible_verses."""
         r = await self.db.execute(
             select(func.count(BibleVerse.id))
