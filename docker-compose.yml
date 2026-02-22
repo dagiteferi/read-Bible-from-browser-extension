@@ -1,0 +1,21 @@
+# Local dev: PostgreSQL 16. SDS/Architecture.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bible_postgres
+    environment:
+      POSTGRES_USER: bible_user
+      POSTGRES_PASSWORD: bible_pass
+      POSTGRES_DB: bible_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bible_user -d bible_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
