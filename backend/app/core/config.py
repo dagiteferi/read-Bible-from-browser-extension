@@ -1,11 +1,9 @@
 from pathlib import Path
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def _env_path() -> Path:
-    # backend/app/core/config.py -> project root
-    return Path(__file__).resolve().parents[2] / ".env"
+    return Path(__file__).resolve().parents[3] / ".env"
 
 
 class Settings(BaseSettings):

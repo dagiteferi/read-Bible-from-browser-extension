@@ -15,13 +15,11 @@ config = context.config
 target_metadata = Base.metadata
 
 sync_url = settings.database_url.replace("postgresql+asyncpg://", "postgresql://")
-config.set_main_option("sqlalchemy.url", sync_url)
 
 
 def run_migrations_offline() -> None:
-    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url,
+        url=sync_url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -40,10 +38,7 @@ def do_run_migrations(connection: Connection) -> None:
 def run_migrations_online() -> None:
     from sqlalchemy import create_engine
 
-    connectable = create_engine(
-        config.get_main_option("sqlalchemy.url"),
-        poolclass=pool.NullPool,
-    )
+    connectable = create_engine(sync_url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
         do_run_migrations(connection)
