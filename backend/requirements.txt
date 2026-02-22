@@ -3,7 +3,6 @@ requests
 python-dotenv
 selenium 
 webdriver-manager 
-
 fastapi>=0.115,<0.116
 uvicorn[standard]>=0.32
 gunicorn>=23.0
@@ -14,3 +13,6 @@ alembic>=1.13
 pydantic>=2.9
 pydantic-settings>=2.6
 python-dotenv>=1.0
+pytest>=8.0
+pytest-asyncio>=0.24
+httpx>=0.27
