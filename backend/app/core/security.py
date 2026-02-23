@@ -5,6 +5,7 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import settings
+import traceback
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
@@ -25,4 +26,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             return Response(status_code=429, content="Too Many Requests")
 
         self._requests[client_ip].append(now)
-        return await call_next(request)
+        try:
+            return await call_next(request)
+        except Exception as e:
+            
+            traceback.print_exc()
+            return Response(status_code=500, content="Internal Server Error")

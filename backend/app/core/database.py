@@ -29,7 +29,6 @@ async def init_db() -> None:
         await conn.run_sync(Base.metadata.create_all)
 
 
-@asynccontextmanager
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_factory() as session:
         try:

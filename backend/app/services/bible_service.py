@@ -19,7 +19,7 @@ class BibleService:
         r = await self.db.execute(
             select(BibleBook.title).order_by(BibleBook.book_number)
         )
-        return [row[0] for row in r.scalars().all()]
+        return list(r.scalars().all())
 
     async def get_metadata(self, book: str) -> MetadataResponse | None:
         """SRS: GET /metadata/{book} - chapter count, verse counts per chapter, tags."""
@@ -43,7 +43,7 @@ class BibleService:
             book=book,
             chapter_count=chapter_count,
             verse_counts=verse_counts,
-            tags=[],  # SRS: optional thematic tags; we could derive from topics
+            tags=[],  
         )
 
     async def get_verse_range(
