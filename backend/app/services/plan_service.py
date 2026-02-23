@@ -38,7 +38,7 @@ class PlanService:
             book_meta.append((book, meta.verse_counts))
 
         # Boundaries: optional {chapter_start, verse_start, chapter_end, verse_end}
-        b = payload.boundaries or {}
+        b = payload.boundaries.model_dump() if payload.boundaries else {}
         ch_start = b.get("chapter_start", 1)
         v_start = b.get("verse_start", 1)
         ch_end = b.get("chapter_end")
@@ -81,10 +81,10 @@ class PlanService:
         plan = Plan(
             device_id=did,
             books=payload.books,
-            boundaries=payload.boundaries,
+            boundaries=payload.boundaries.model_dump() if payload.boundaries else None,
             target_date=payload.target_date,
             frequency=payload.frequency,
-            quiet_hours=payload.quiet_hours,
+            quiet_hours=payload.quiet_hours.model_dump() if payload.quiet_hours else None,
             max_verses_per_unit=payload.max_verses_per_unit,
             state="active",
         )
@@ -92,7 +92,8 @@ class PlanService:
         await self.db.flush()
 
         # Segment: produce reading_units (book, chapter, verse_start, verse_end)
-        units = self._segment(book_meta, payload.books, payload.boundaries, verses_per_unit)
+        boundaries_dict = payload.boundaries.model_dump() if payload.boundaries else None
+        units = self._segment(book_meta, payload.books, boundaries_dict, verses_per_unit)
         for idx, (book, chapter, vs, ve) in enumerate(units):
             self.db.add(
                 ReadingUnit(
@@ -177,13 +178,13 @@ class PlanService:
         if payload.books is not None:
             plan.books = payload.books
         if payload.boundaries is not None:
-            plan.boundaries = payload.boundaries
+            plan.boundaries = payload.boundaries.model_dump()
         if payload.target_date is not None:
             plan.target_date = payload.target_date
         if payload.frequency is not None:
             plan.frequency = payload.frequency
         if payload.quiet_hours is not None:
-            plan.quiet_hours = payload.quiet_hours
+            plan.quiet_hours = payload.quiet_hours.model_dump()
         if payload.max_verses_per_unit is not None:
             plan.max_verses_per_unit = payload.max_verses_per_unit
         if payload.state is not None:

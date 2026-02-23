@@ -3,8 +3,16 @@ import random
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import BibleBook, BibleVerse, BibleTopic, BibleTopicVerse
-from app.schemas.bible import MetadataResponse, VerseResponse
+from app.models import (
+    BibleBook, 
+    BibleVerse, 
+    BibleTopic,
+    BibleTopicVerse
+    )
+from app.schemas.bible import (
+    MetadataResponse,
+    VerseResponse
+)
 from app.schemas.random_verse import RandomVerseResponse
 
 
