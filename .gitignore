@@ -12,6 +12,7 @@ backend/__pycache__/
 backend/*.pyc
 backend/.env
 backend/bible_data/*.json   
+.pytest_cache
 
 # extension
 extension/node_modules/
