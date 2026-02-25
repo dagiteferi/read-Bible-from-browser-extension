@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Font Imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@300;400;500;600;700&display=swap');
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  @apply text-text-primary dark:text-dark-text bg-bg-cream dark:bg-dark-bg;
+}
+
+.verse-text, .book-name, .notification-content {
+  font-family: 'Noto Sans Ethiopic', 'Noto Sans', sans-serif;
+  line-height: 1.8;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+
+.book-option {
+  font-family: 'Noto Sans Ethiopic', sans-serif;
+  font-size: 1rem;
+}
