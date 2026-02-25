@@ -8,7 +8,7 @@ import { useSettingsContext } from '../contexts/SettingsContext';
 import { CreatePlanRequest } from '../types/api';
 import { TimeRange } from '../types/storage';
 
-/* ─── Icons ─── */
+
 const BackIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="15 18 9 12 15 6" />
@@ -44,7 +44,7 @@ const CheckIcon = () => (
 
 type PlanMode = 'random' | 'planned' | null;
 
-/* ─── Step labels for planned mode ─── */
+
 const PLANNED_STEPS = [
   { id: 1, label: 'Books' },
   { id: 2, label: 'Goal' },
@@ -52,9 +52,7 @@ const PLANNED_STEPS = [
   { id: 4, label: 'Review' },
 ];
 
-/* ─────────────────────────────────────────
-   MODE SELECTION SCREEN
-───────────────────────────────────────── */
+
 interface ModeCardProps {
   selected: boolean;
   onClick: () => void;
@@ -197,9 +195,7 @@ const CreatePlan = () => {
     } finally { setLoading(false); }
   };
 
-  /* ═══════════════════════════════════════
-     RENDER — MODE SELECTION
-  ═══════════════════════════════════════ */
+  
   if (mode === null) {
     return (
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
