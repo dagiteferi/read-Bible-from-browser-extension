@@ -5,9 +5,10 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "types": ["chrome"]
+    "types": ["node", "chrome"]
   },
   "include": ["vite.config.ts"]
 }
