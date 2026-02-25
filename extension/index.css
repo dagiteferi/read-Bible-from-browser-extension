@@ -1,23 +1,144 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Ethiopic:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  @apply text-text-primary dark:text-dark-text bg-bg-cream dark:bg-dark-bg;
+:root {
+  --bg-cream: #F9F3E7;
+  --indigo-deep: #1E3A5F;
+  --amber-warm: #C97C3D;
+  --olive-mountain: #5F6D5A;
+  --burgundy-curtain: #722F37;
+  --text-primary: #2C2C2C;
+  --text-secondary: #5C5C5C;
+  --border-light: #E8E0D5;
 }
 
-.verse-text, .book-name, .notification-content {
-  font-family: 'Noto Sans Ethiopic', 'Noto Sans', sans-serif;
-  line-height: 1.8;
-  font-size: 1.1rem;
-  letter-spacing: 0.02em;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-cream: #2C2C2C;
+    --indigo-deep: #2A4A70;
+    --amber-warm: #D88C4A;
+    --olive-mountain: #6D7D68;
+    --burgundy-curtain: #8B4B55;
+    --text-primary: #F0F0F0;
+    --text-secondary: #B0B0B0;
+    --border-light: #4C4C4C;
+  }
 }
 
-.book-option {
-  font-family: 'Noto Sans Ethiopic', sans-serif;
-  font-size: 1rem;
+@layer base {
+  body {
+    @apply font-inter text-text-primary bg-cream min-h-[500px] w-[400px] m-0 p-0 overflow-x-hidden transition-colors duration-300;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .heading {
+    @apply font-inter font-medium tracking-tight;
+  }
+
+  h1 {
+    @apply text-24;
+  }
+
+  h2 {
+    @apply text-20;
+  }
+
+  h3 {
+    @apply text-18;
+  }
+
+  /* Amharic Scripture Styling */
+  .verse-text,
+  .book-name,
+  [data-amharic="true"] {
+    @apply font-ethiopic text-[1.1rem] leading-[1.8] tracking-wide;
+  }
+
+  *:focus-visible {
+    @apply outline outline-2 outline-amber-spirit-warm outline-offset-2 rounded-sm;
+  }
+}
+
+@layer components {
+  .sacred-card {
+    @apply bg-white dark:bg-night-surface rounded-sacred shadow-sacred border border-border-light dark:border-night-border p-24 transition-all duration-200;
+  }
+
+  .sacred-card:hover {
+    @apply shadow-sacred-hover;
+  }
+
+  .parchment {
+    @apply bg-cream-parchment dark:bg-night-bg relative overflow-hidden;
+    background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+  }
+
+  .btn-spiritual {
+    @apply flex items-center justify-center gap-8 px-16 py-8 rounded-sacred font-medium transition-all duration-200 active:scale-[0.98];
+  }
+
+  .btn-primary {
+    @apply btn-spiritual bg-indigo-prayer text-white hover:bg-opacity-90 hover:shadow-amber-glow;
+  }
+
+  .btn-secondary {
+    @apply btn-spiritual bg-transparent border border-indigo-prayer text-indigo-prayer hover:bg-indigo-prayer hover:text-white;
+  }
+
+  .btn-ghost {
+    @apply btn-spiritual bg-transparent text-text-secondary hover:bg-indigo-prayer hover:bg-opacity-10;
+  }
+
+  .progress-track {
+    @apply w-full h-8 bg-border-light dark:bg-night-border rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-amber-spirit to-[#E5A165] transition-all duration-1000 ease-out;
+  }
+
+  .notification-badge {
+    @apply bg-burgundy-curtain text-white text-[10px] px-6 py-2 rounded-full font-bold;
+  }
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-cream;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-amber-spirit rounded-full hover:bg-amber-spirit-warm;
+  background-color: color-mix(in srgb, var(--amber-warm) 80%, black);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.loading-pulse {
+  @apply animate-pulse bg-border-light dark:bg-night-border rounded;
 }

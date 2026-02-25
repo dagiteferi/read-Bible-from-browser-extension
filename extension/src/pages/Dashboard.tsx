@@ -5,11 +5,18 @@ import { NextNotification } from '../components/dashboard/NextNotification';
 
 const Dashboard = () => {
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-indigo-deep dark:text-dark-indigo">Dashboard</h1>
-      <ActivePlanCard />
-      <StatsOverview />
-      <NextNotification />
+    <div className="p-24 space-y-24 animate-fade-in parchment min-h-screen">
+      <header className="flex justify-between items-center">
+        <h1 className="text-24 font-medium text-indigo-prayer dark:text-night-text">
+          My Journey
+        </h1>
+        <NextNotification />
+      </header>
+
+      <main className="space-y-24">
+        <ActivePlanCard />
+        <StatsOverview />
+      </main>
     </div>
   );
 };

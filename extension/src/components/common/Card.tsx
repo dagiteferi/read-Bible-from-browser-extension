@@ -3,12 +3,13 @@ import React from 'react';
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
+  parchment?: boolean;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className = '', ...props }) => {
+export const Card: React.FC<CardProps> = ({ children, className = '', parchment = false, ...props }) => {
   return (
     <div
-      className={`bg-white dark:bg-dark-surface rounded-lg shadow-md p-4 ${className}`}
+      className={`sacred-card ${parchment ? 'parchment' : ''} ${className}`}
       {...props}
     >
       {children}
