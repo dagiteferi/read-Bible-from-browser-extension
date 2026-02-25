@@ -1,66 +1,71 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '../common/Card';
+
+const SunIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+    <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+  </svg>
+);
+
+const MoonIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+);
 
 export const DisplaySettings: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    const savedMode = localStorage.getItem('theme');
-    if (savedMode === 'dark') {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    } else if (savedMode === 'light') {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove('dark');
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const dark = saved === 'dark' || (!saved && prefersDark);
+    setIsDark(dark);
+    document.documentElement.classList.toggle('dark', dark);
   }, []);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(prevMode => {
-      const newMode = !prevMode;
-      if (newMode) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-      }
-      return newMode;
+  const toggle = () => {
+    setIsDark(prev => {
+      const next = !prev;
+      document.documentElement.classList.toggle('dark', next);
+      localStorage.setItem('theme', next ? 'dark' : 'light');
+      return next;
     });
   };
 
   return (
-    <Card className="space-y-24">
-      <div className="flex items-center justify-between group cursor-pointer" onClick={toggleDarkMode}>
-        <div className="space-y-4">
-          <h3 className="text-12 font-bold uppercase tracking-widest text-indigo-prayer dark:text-night-amber">
-            Vesper Mode (Dark)
-          </h3>
-          <p className="text-[10px] text-text-secondary dark:text-night-text-muted italic">
-            Gentle illumination for evening meditation.
-          </p>
+    <div className="card">
+      <p className="section-header">Display</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 9, display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            background: isDark ? 'hsl(211,52%,25%,0.15)' : 'hsl(27,55%,51%,0.1)',
+            color: isDark ? 'var(--primary)' : 'var(--accent)',
+          }}>
+            {isDark ? <MoonIcon /> : <SunIcon />}
+          </div>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--foreground)' }}>
+              {isDark ? 'Dark Mode' : 'Light Mode'}
+            </p>
+            <p style={{ fontSize: 11, color: 'var(--muted-foreground)' }}>
+              {isDark ? 'Easy on the eyes at night' : 'Clear daytime reading'}
+            </p>
+          </div>
         </div>
-        <div className={`w-48 h-24 rounded-full p-4 transition-colors duration-300 ${isDarkMode ? 'bg-amber-spirit' : 'bg-border-light'}`}>
-          <div className={`w-16 h-16 bg-white rounded-full shadow-sm transform transition-transform duration-300 ${isDarkMode ? 'translate-x-24' : 'translate-x-0'}`} />
-        </div>
+        <button
+          className="toggle"
+          style={{ background: isDark ? 'var(--primary)' : undefined }}
+          onClick={toggle}
+          aria-label="Toggle dark mode"
+        >
+          <div className="toggle-thumb" style={{ transform: isDark ? 'translateX(20px)' : 'translateX(0)' }} />
+        </button>
       </div>
-
-      <div className="pt-16 border-t border-border-light dark:border-night-border space-y-12">
-        <h3 className="text-12 font-bold uppercase tracking-widest text-indigo-prayer dark:text-night-amber opacity-50">
-          Scripture Font
-        </h3>
-        <div className="grid grid-cols-2 gap-8">
-          <button className="p-12 text-center rounded-sacred border-2 border-amber-spirit bg-amber-spirit bg-opacity-10 text-12 font-bold text-amber-spirit">
-            Noto Sans Ethiopic
-          </button>
-          <button className="p-12 text-center rounded-sacred border border-border-light dark:border-night-border text-12 font-bold text-text-secondary opacity-50 cursor-not-allowed">
-            Abyssinica (Soon)
-          </button>
-        </div>
-      </div>
-    </Card>
+    </div>
   );
 };

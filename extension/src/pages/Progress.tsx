@@ -4,21 +4,24 @@ import { Statistics } from '../components/progress/Statistics';
 
 const Progress = () => {
   return (
-    <div className="p-24 space-y-24 animate-fade-in parchment min-h-screen pb-48">
-      <header className="space-y-8">
-        <h1 className="text-24 font-medium text-indigo-prayer dark:text-night-text">
-          Growth
-        </h1>
-        <p className="text-text-secondary dark:text-night-text-muted text-sm italic">
-          Behold your journey through the Holy Word.
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      {/* Page header */}
+      <div style={{
+        padding: '14px 16px 12px',
+        borderBottom: '1px solid var(--border)',
+        background: 'var(--card)',
+      }}>
+        <h1 style={{ fontSize: 17, fontWeight: 700, color: 'var(--foreground)' }}>Growth</h1>
+        <p style={{ fontSize: 12, color: 'var(--muted-foreground)', marginTop: 2 }}>
+          Your journey through the Word
         </p>
-      </header>
+      </div>
 
-      <main className="space-y-32">
-        <TimelineChart />
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <Statistics />
+        <TimelineChart />
         <UnitList />
-      </main>
+      </div>
     </div>
   );
 };

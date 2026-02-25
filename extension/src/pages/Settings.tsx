@@ -4,38 +4,24 @@ import { DataManagement } from '../components/settings/DataManagement';
 
 const Settings = () => {
   return (
-    <div className="p-24 space-y-24 animate-fade-in parchment min-h-screen pb-48">
-      <header className="space-y-8">
-        <h1 className="text-24 font-medium text-indigo-prayer dark:text-night-text">
-          Sanctuary
-        </h1>
-        <p className="text-text-secondary dark:text-night-text-muted text-sm italic">
-          Configure your experience.
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      {/* Page header */}
+      <div style={{
+        padding: '14px 16px 12px',
+        borderBottom: '1px solid var(--border)',
+        background: 'var(--card)',
+      }}>
+        <h1 style={{ fontSize: 17, fontWeight: 700, color: 'var(--foreground)' }}>Settings</h1>
+        <p style={{ fontSize: 12, color: 'var(--muted-foreground)', marginTop: 2 }}>
+          Customize your reading experience
         </p>
-      </header>
+      </div>
 
-      <main className="space-y-32">
-        <section className="space-y-16">
-          <h2 className="text-12 font-bold text-amber-spirit uppercase tracking-[0.2em] border-b border-border-light dark:border-night-border pb-4">
-            Divine Rhythm
-          </h2>
-          <NotificationSettings />
-        </section>
-
-        <section className="space-y-16">
-          <h2 className="text-12 font-bold text-amber-spirit uppercase tracking-[0.2em] border-b border-border-light dark:border-night-border pb-4">
-            Illumination
-          </h2>
-          <DisplaySettings />
-        </section>
-
-        <section className="space-y-16">
-          <h2 className="text-12 font-bold text-burgundy-curtain uppercase tracking-[0.2em] border-b border-burgundy-curtain border-opacity-20 pb-4">
-            Archives
-          </h2>
-          <DataManagement />
-        </section>
-      </main>
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <DisplaySettings />
+        <NotificationSettings />
+        <DataManagement />
+      </div>
     </div>
   );
 };

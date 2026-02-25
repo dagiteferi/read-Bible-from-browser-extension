@@ -1,42 +1,102 @@
 import React from 'react';
-import { Card } from '../common/Card';
 import { usePlanContext } from '../../contexts/PlanContext';
+
+const BookIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </svg>
+);
+
+const ActivityIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
 
 export const StatsOverview: React.FC = () => {
   const { progress, loading, error } = usePlanContext();
 
-  if (loading) return <div className="loading-pulse h-120 w-full" />;
+  if (loading) {
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <div className="skeleton" style={{ height: 70, borderRadius: 12 }} />
+        <div className="skeleton" style={{ height: 70, borderRadius: 12 }} />
+      </div>
+    );
+  }
+
   if (error) return null;
 
-  return (
-    <Card className="border-t-4 border-t-indigo-prayer">
-      <h3 className="text-14 font-medium text-text-secondary dark:text-night-text-muted uppercase tracking-widest mb-16">
-        Milestones
-      </h3>
-      <div className="grid grid-cols-2 gap-16">
-        <div className="space-y-4">
-          <div className="flex items-center gap-8 text-indigo-prayer dark:text-night-text">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>
-            <span className="text-xs font-semibold">Verses Read</span>
-          </div>
-          <p className="text-24 font-inter font-bold text-amber-spirit">{progress?.completed_verses || 0}</p>
-        </div>
+  const stats = [
+    {
+      label: 'Verses Read',
+      value: progress?.completed_verses ?? 0,
+      icon: <BookIcon />,
+      color: 'var(--accent)',
+      bgColor: 'hsl(27, 55%, 51%, 0.1)',
+    },
+    {
+      label: 'Units Done',
+      value: progress?.completed_units ?? 0,
+      icon: <ActivityIcon />,
+      color: 'var(--success)',
+      bgColor: 'hsl(103, 10%, 39%, 0.1)',
+    },
+  ];
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-8 text-indigo-prayer dark:text-night-text">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-            </svg>
-            <span className="text-xs font-semibold">Rhythm</span>
+  const completionPct = progress && progress.total_units > 0
+    ? Math.round((progress.completed_units / progress.total_units) * 100)
+    : 0;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <p className="section-header">Milestones</p>
+
+      {/* Stat cards row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        {stats.map((stat) => (
+          <div key={stat.label} className="card-sm" style={{ textAlign: 'center' }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: stat.bgColor, display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 8px auto', color: stat.color,
+            }}>
+              {stat.icon}
+            </div>
+            <p style={{ fontSize: 22, fontWeight: 700, color: 'var(--foreground)', lineHeight: 1 }}>
+              {stat.value}
+            </p>
+            <p style={{ fontSize: 11, color: 'var(--muted-foreground)', marginTop: 3 }}>
+              {stat.label}
+            </p>
           </div>
-          <p className="text-24 font-inter font-bold text-olive-mountain">
-            {progress?.completed_units || 0} <span className="text-12 font-medium opacity-50">UNITS</span>
-          </p>
-        </div>
+        ))}
       </div>
-    </Card>
+
+      {/* Completion badge */}
+      {completionPct > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '10px 14px', borderRadius: 10,
+          background: 'hsl(103, 10%, 39%, 0.08)',
+          border: '1px solid hsl(103, 10%, 39%, 0.15)',
+        }}>
+          <div style={{ color: 'var(--success)' }}>
+            <CheckIcon />
+          </div>
+          <span style={{ fontSize: 13, color: 'var(--success)', fontWeight: 500 }}>
+            {completionPct}% of plan complete
+          </span>
+        </div>
+      )}
+    </div>
   );
 };

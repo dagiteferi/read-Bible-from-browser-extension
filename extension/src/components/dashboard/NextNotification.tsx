@@ -1,30 +1,36 @@
 import React from 'react';
+import { usePlanContext } from '../../contexts/PlanContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { getNextNotificationTime } from '../../utils/dateHelpers';
 
+const BellIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </svg>
+);
+
 export const NextNotification: React.FC = () => {
-  const { settings, loading } = useSettingsContext();
+  const { currentPlan } = usePlanContext();
+  const { settings } = useSettingsContext();
 
-  if (loading) return <div className="loading-pulse w-80 h-32" />;
+  if (!currentPlan) return null;
 
-  const nextNotification = getNextNotificationTime(new Date(), settings.workingHours, settings.quietHours);
+  const nextTime = getNextNotificationTime(new Date(), settings.workingHours, settings.quietHours);
+  const timeStr = nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className="flex items-center gap-8 bg-amber-spirit bg-opacity-10 px-12 py-6 rounded-full border border-amber-spirit border-opacity-20 animate-fade-in group hover:bg-opacity-20 transition-all cursor-default">
-      <div className="text-amber-spirit">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2v4"></path>
-          <path d="M12 18v4"></path>
-          <path d="M4.93 4.93l2.83 2.83"></path>
-          <path d="M16.24 16.24l2.83 2.83"></path>
-          <path d="M2 12h4"></path>
-          <path d="M18 12h4"></path>
-          <path d="M4.93 19.07l2.83-2.83"></path>
-          <path d="M16.24 7.76l2.83-2.83"></path>
-        </svg>
-      </div>
-      <span className="text-12 font-bold text-amber-spirit-warm tracking-tight">
-        {nextNotification.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 5,
+      padding: '4px 10px', borderRadius: 99,
+      background: 'hsl(27, 55%, 51%, 0.12)',
+      border: '1px solid hsl(27, 55%, 51%, 0.2)',
+    }}>
+      <span style={{ color: 'var(--accent)' }}>
+        <BellIcon />
+      </span>
+      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)' }}>
+        {timeStr}
       </span>
     </div>
   );

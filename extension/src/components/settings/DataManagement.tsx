@@ -1,37 +1,70 @@
 import React from 'react';
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
+
+const DownloadIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+);
+
+const UploadIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="17 8 12 3 7 8" />
+    <line x1="12" y1="3" x2="12" y2="15" />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6l-1 14H6L5 6" />
+    <path d="M10 11v6M14 11v6" />
+    <path d="M9 6V4h6v2" />
+  </svg>
+);
 
 export const DataManagement: React.FC = () => {
-  const handleExportData = () => {
-    console.log('Exporting data...');
-    alert('Data export functionality is not yet implemented.');
-  };
-
-  const handleImportData = () => {
-    console.log('Importing data...');
-    alert('Data import functionality is not yet implemented.');
+  const handleExport = () => alert('Export not yet implemented.');
+  const handleImport = () => alert('Import not yet implemented.');
+  const handleReset = () => {
+    if (confirm('Reset all data? This cannot be undone.')) {
+      alert('Reset functionality not yet implemented.');
+    }
   };
 
   return (
-    <Card className="space-y-24">
-      <div className="space-y-4">
-        <h3 className="text-12 font-bold uppercase tracking-widest text-burgundy-curtain">
-          Sacred Archives
-        </h3>
-        <p className="text-[10px] text-text-secondary dark:text-night-text-muted italic">
-          Preserve your journey or restore from a past commitment.
-        </p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {/* Data actions */}
+      <div className="card">
+        <p className="section-header">Data</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <button className="btn btn-outline btn-sm" onClick={handleExport}
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <DownloadIcon /> Export
+          </button>
+          <button className="btn btn-outline btn-sm" onClick={handleImport}
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <UploadIcon /> Import
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-16">
-        <Button variant="secondary" onClick={handleExportData} className="text-12 py-12">
-          Export
-        </Button>
-        <Button variant="ghost" onClick={handleImportData} className="text-12 py-12 opacity-50">
-          Import
-        </Button>
+      {/* Danger zone */}
+      <div className="card" style={{ border: '1px solid hsl(353,42%,32%,0.25)' }}>
+        <p className="section-header" style={{ color: 'var(--destructive)' }}>Danger Zone</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--foreground)' }}>Reset All Data</p>
+            <p style={{ fontSize: 11, color: 'var(--muted-foreground)' }}>Permanently delete everything</p>
+          </div>
+          <button className="btn btn-destructive btn-sm" onClick={handleReset}
+            style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <TrashIcon /> Reset
+          </button>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 };
