@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import '../index.css';
 
-const FullVerse = () => {
+const FullVersePage = () => {
   return (
     <div className="min-h-screen p-8 bg-bg-cream dark:bg-dark-bg text-text-primary dark:text-dark-text">
       <h1 className="text-2xl font-bold text-indigo-deep dark:text-dark-indigo mb-4">Full Verse View</h1>
@@ -18,6 +18,6 @@ const FullVerse = () => {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <FullVerse />
+    <FullVersePage />
   </React.StrictMode>
 );
