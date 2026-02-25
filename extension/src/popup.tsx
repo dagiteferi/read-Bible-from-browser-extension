@@ -10,7 +10,7 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { DeviceProvider } from './contexts/DeviceContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
-type Page = 'dashboard' | 'createPlan' | 'progress' | 'settings';
+export type Page = 'dashboard' | 'createPlan' | 'progress' | 'settings';
 
 const HomeIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -53,13 +53,15 @@ const navItems = [
 const Popup = () => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
 
+  const navigate = (page: Page) => setCurrentPage(page);
+
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard': return <Dashboard />;
+      case 'dashboard': return <Dashboard onNavigate={navigate} />;
       case 'createPlan': return <CreatePlan />;
       case 'progress': return <Progress />;
       case 'settings': return <Settings />;
-      default: return <Dashboard />;
+      default: return <Dashboard onNavigate={navigate} />;
     }
   };
 
@@ -69,18 +71,15 @@ const Popup = () => {
         <SettingsProvider>
           <PlanProvider>
             <div className="app-shell">
-              {/* Main content area */}
               <div className="app-content">
                 {renderPage()}
               </div>
-
-              {/* Bottom navigation */}
               <nav className="bottom-nav">
                 {navItems.map(({ id, label, Icon }) => (
                   <button
                     key={id}
                     className={`bottom-nav-item${currentPage === id ? ' active' : ''}`}
-                    onClick={() => setCurrentPage(id)}
+                    onClick={() => navigate(id)}
                     aria-label={label}
                   >
                     <Icon />
