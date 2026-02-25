@@ -30,7 +30,7 @@
 
 @layer base {
   body {
-    @apply font-inter text-text-primary bg-cream min-h-[500px] w-[400px] m-0 p-0 overflow-x-hidden transition-colors duration-300;
+    @apply font-inter text-text-primary bg-cream min-h-[500px] w-[580px] m-0 p-0 overflow-x-hidden transition-colors duration-300;
   }
 
   h1,

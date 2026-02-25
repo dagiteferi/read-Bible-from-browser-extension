@@ -43,7 +43,7 @@ const Popup = () => {
       <DeviceProvider>
         <SettingsProvider>
           <PlanProvider>
-            <div className="w-[400px] h-[600px] flex flex-col parchment shadow-2xl relative overflow-hidden">
+            <div className="w-[580px] max-w-[200vw] h-[600px] flex flex-col parchment shadow-2xl relative overflow-hidden">
               <main className="flex-grow overflow-y-auto custom-scrollbar">
                 {(() => {
                   switch (currentPage) {
@@ -62,8 +62,8 @@ const Popup = () => {
                     key={item.id}
                     onClick={() => setCurrentPage(item.id)}
                     className={`flex flex-col items-center gap-4 px-12 py-8 rounded-sacred transition-all duration-300 ${currentPage === item.id
-                        ? 'text-amber-spirit bg-amber-spirit bg-opacity-10'
-                        : 'text-text-secondary dark:text-night-text-muted hover:bg-indigo-prayer hover:bg-opacity-5'
+                      ? 'text-amber-spirit bg-amber-spirit bg-opacity-10'
+                      : 'text-text-secondary dark:text-night-text-muted hover:bg-indigo-prayer hover:bg-opacity-5'
                       }`}
                   >
                     <div className={`${currentPage === item.id ? 'scale-110 shadow-amber-glow' : ''}`}>
