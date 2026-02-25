@@ -1,6 +1,16 @@
-export const Card = ({ children, className = '' }) => {
+import React from 'react';
+
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export const Card: React.FC<CardProps> = ({ children, className = '', ...props }) => {
   return (
-    <div className={`bg-white dark:bg-dark-surface rounded-lg shadow-md p-4 ${className}`}>
+    <div
+      className={`bg-white dark:bg-dark-surface rounded-lg shadow-md p-4 ${className}`}
+      {...props}
+    >
       {children}
     </div>
   );
