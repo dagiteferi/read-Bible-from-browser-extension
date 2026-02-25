@@ -3,6 +3,10 @@ import { Plan, Progress } from '../types/plan';
 import { getPlanProgress } from '../services/api/plans';
 import { markUnitAsRead as apiMarkUnitAsRead } from '../services/api/units';
 import { getLocal, setLocal } from '../services/storage/local';
+import { useOfflineQueue } from '../hooks/useOfflineQueue'; // Import the hook
+import { CreatePlanRequest } from '../types/api';
+import { createPlan as apiCreatePlan } from '../services/api/plans';
+
 
 interface PlanContextType {
   currentPlan: Plan | null;
@@ -12,6 +16,7 @@ interface PlanContextType {
   refreshPlan: () => Promise<void>;
   markUnitRead: (unitId: string) => Promise<void>;
   setActivePlan: (plan: Plan | null) => void;
+  createPlan: (planData: CreatePlanRequest) => Promise<Plan | null>;
 }
 
 const PlanContext = createContext<PlanContextType | undefined>(undefined);
@@ -23,6 +28,7 @@ export const PlanProvider = ({ children }) => {
   const [progress, setProgress] = useState<Progress | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const { queueOfflineAction, isOnline } = useOfflineQueue(); // Use the offline queue hook
 
   useEffect(() => {
     const loadActivePlan = async () => {
@@ -67,9 +73,15 @@ export const PlanProvider = ({ children }) => {
     if (!currentPlan?.id) return;
     setLoading(true);
     setError(null);
+    if (!isOnline) {
+      queueOfflineAction({ type: 'markUnitAsRead', payload: { unitId } });
+      setError(new Error('You are offline. Action queued for sync.'));
+      setLoading(false);
+      return;
+    }
     try {
       await apiMarkUnitAsRead(unitId);
-      await refreshPlan();
+      await refreshPlan(); // Refresh progress after marking unit as read
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -77,8 +89,30 @@ export const PlanProvider = ({ children }) => {
     }
   };
 
+  const createPlan = async (planData: CreatePlanRequest): Promise<Plan | null> => {
+    setLoading(true);
+    setError(null);
+    if (!isOnline) {
+      queueOfflineAction({ type: 'createPlan', payload: { planData } });
+      setError(new Error('You are offline. Plan creation queued for sync.'));
+      setLoading(false);
+      return null;
+    }
+    try {
+      const response = await apiCreatePlan(planData);
+      const newPlan: Plan = { id: response.plan_id, ...planData, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+      setActivePlan(newPlan);
+      return newPlan;
+    } catch (err) {
+      setError(err as Error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <PlanContext.Provider value={{ currentPlan, progress, loading, error, refreshPlan, markUnitRead, setActivePlan }}>
+    <PlanContext.Provider value={{ currentPlan, progress, loading, error, refreshPlan, markUnitRead, setActivePlan, createPlan }}>
       {children}
     </PlanContext.Provider>
   );

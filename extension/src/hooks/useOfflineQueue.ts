@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getLocal, setLocal } from '../services/storage/local';
-import { syncOfflineActions } from '../services/background/syncManager'; // Assuming this exists
+import { syncOfflineActions } from '../services/background/syncManager';
 
 const OFFLINE_QUEUE_KEY = 'offlineActionsQueue';
 
@@ -36,13 +36,16 @@ export const useOfflineQueue = () => {
     if (isOnline && queue.length > 0) {
       console.log('Online, attempting to sync offline actions...');
       syncOfflineActions(); // Trigger background sync
-      setQueue([]); // Clear queue after triggering sync
+      // After triggering sync, the background script will update the local storage
+      // We can clear the queue here optimistically or wait for confirmation from background
+      setQueue([]); // Optimistically clear the queue
       setLocal(OFFLINE_QUEUE_KEY, []);
     }
   }, [isOnline, queue]);
 
   const queueOfflineAction = async (action: OfflineAction) => {
-    const updatedQueue = [...queue, action];
+    const currentQueue = await getLocal(OFFLINE_QUEUE_KEY) || [];
+    const updatedQueue = [...currentQueue, action];
     setQueue(updatedQueue);
     await setLocal(OFFLINE_QUEUE_KEY, updatedQueue);
     console.log('Action queued offline:', action);
