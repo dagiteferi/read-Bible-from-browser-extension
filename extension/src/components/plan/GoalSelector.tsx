@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from '../common/Card';
 
 interface GoalSelectorProps {
   targetDate: string;
@@ -15,43 +14,53 @@ export const GoalSelector: React.FC<GoalSelectorProps> = ({
   onMaxVersesChange,
 }) => {
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-indigo-deep dark:text-dark-indigo">Set Your Goal</h2>
-      <p className="mt-2 text-text-secondary dark:text-dark-text-secondary">
-        Define your target completion date or your preferred daily reading pace.
-      </p>
+    <div className="space-y-24 animate-fade-in">
+      <div className="space-y-8">
+        <h2 className="text-18 font-medium text-indigo-prayer dark:text-night-text uppercase tracking-widest">
+          The Goal
+        </h2>
+        <p className="text-text-secondary dark:text-night-text-muted text-sm italic">
+          Set the pace of your journey.
+        </p>
+      </div>
 
-      <div className="mt-4 space-y-4">
-        <div>
-          <label htmlFor="targetDate" className="block text-sm font-medium text-text-secondary dark:text-dark-text-secondary">
-            Target Completion Date
+      <div className="space-y-24">
+        <div className="space-y-8">
+          <label htmlFor="targetDate" className="text-xs font-bold uppercase tracking-widest text-indigo-prayer dark:text-night-amber">
+            Completion Date
           </label>
-          <input
-            type="date"
-            id="targetDate"
-            value={targetDate}
-            onChange={(e) => onTargetDateChange(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-deep focus:ring-indigo-deep dark:bg-dark-surface dark:border-dark-border dark:text-dark-text"
-          />
+          <div className="relative">
+            <input
+              type="date"
+              id="targetDate"
+              value={targetDate}
+              onChange={(e) => onTargetDateChange(e.target.value)}
+              className="w-full bg-white dark:bg-night-surface border border-border-light dark:border-night-border rounded-sacred p-12 text-text-primary dark:text-night-text focus:border-amber-spirit focus:ring-1 focus:ring-amber-spirit outline-none transition-all"
+            />
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="maxVerses" className="block text-sm font-medium text-text-secondary dark:text-dark-text-secondary">
-            Maximum Verses per Reading Unit
-          </label>
+        <div className="space-y-8">
+          <div className="flex justify-between items-center">
+            <label htmlFor="maxVerses" className="text-xs font-bold uppercase tracking-widest text-indigo-prayer dark:text-night-amber">
+              Daily Verse Limit
+            </label>
+            <span className="text-20 font-bold text-amber-spirit">{maxVersesPerUnit}</span>
+          </div>
           <input
-            type="number"
+            type="range"
             id="maxVerses"
             value={maxVersesPerUnit}
             onChange={(e) => onMaxVersesChange(parseInt(e.target.value))}
             min="1"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-deep focus:ring-indigo-deep dark:bg-dark-surface dark:border-dark-border dark:text-dark-text"
+            max="50"
+            className="w-full accent-amber-spirit"
           />
-          <p className="mt-1 text-xs text-text-secondary dark:text-dark-text-secondary">
-            This helps control the length of each daily reading.
+          <p className="text-[10px] text-text-secondary dark:text-night-text-muted italic">
+            This ensures your daily portions are manageable and meditative.
           </p>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };

@@ -6,7 +6,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 export const NotificationSettings: React.FC = () => {
   const { settings, updateSettings, loading } = useSettingsContext();
 
-  if (loading) return <Card><p>Loading settings...</p></Card>;
+  if (loading) return <div className="loading-pulse h-200 w-full" />;
 
   const handleQuietHoursChange = (type: 'start' | 'end', value: string) => {
     updateSettings({
@@ -21,49 +21,52 @@ export const NotificationSettings: React.FC = () => {
   };
 
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-indigo-deep dark:text-dark-indigo">Notification Settings</h2>
-      <p className="mt-2 text-text-secondary dark:text-dark-text-secondary">
-        Manage when and how you receive your daily readings.
-      </p>
-
-      <div className="mt-4 space-y-4">
-        <div>
-          <h3 className="font-medium text-indigo-deep dark:text-dark-indigo mb-2">Quiet Hours (Times of Stillness)</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <TimePicker
-              label="Start Time"
-              value={settings.quietHours.start}
-              onChange={(e) => handleQuietHoursChange('start', e.target.value)}
-            />
-            <TimePicker
-              label="End Time"
-              value={settings.quietHours.end}
-              onChange={(e) => handleQuietHoursChange('end', e.target.value)}
-            />
+    <Card className="space-y-24">
+      <div className="space-y-16">
+        <div className="flex items-center gap-12">
+          <div className="text-burgundy-curtain">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path><path d="M12 7v5l3 3"></path></svg>
           </div>
-          <p className="mt-1 text-xs text-text-secondary dark:text-dark-text-secondary">
-            Notifications will be paused during these hours.
-          </p>
+          <h3 className="text-12 font-bold uppercase tracking-widest text-indigo-prayer dark:text-night-amber">
+            Stillness (Quiet Hours)
+          </h3>
         </div>
 
-        <div>
-          <h3 className="font-medium text-indigo-deep dark:text-dark-indigo mb-2">Working Hours (Times of Listening)</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <TimePicker
-              label="Start Time"
-              value={settings.workingHours.start}
-              onChange={(e) => handleWorkingHoursChange('start', e.target.value)}
-            />
-            <TimePicker
-              label="End Time"
-              value={settings.workingHours.end}
-              onChange={(e) => handleWorkingHoursChange('end', e.target.value)}
-            />
+        <div className="grid grid-cols-2 gap-16 ml-32">
+          <TimePicker
+            label="From"
+            value={settings.quietHours.start}
+            onChange={(e) => handleQuietHoursChange('start', e.target.value)}
+          />
+          <TimePicker
+            label="Until"
+            value={settings.quietHours.end}
+            onChange={(e) => handleQuietHoursChange('end', e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-16 pt-16 border-t border-border-light dark:border-night-border">
+        <div className="flex items-center gap-12">
+          <div className="text-olive-mountain">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </div>
-          <p className="mt-1 text-xs text-text-secondary dark:text-dark-text-secondary">
-            Notifications will primarily be delivered within these hours.
-          </p>
+          <h3 className="text-12 font-bold uppercase tracking-widest text-indigo-prayer dark:text-night-amber">
+            Listening (Active Hours)
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-2 gap-16 ml-32">
+          <TimePicker
+            label="From"
+            value={settings.workingHours.start}
+            onChange={(e) => handleWorkingHoursChange('start', e.target.value)}
+          />
+          <TimePicker
+            label="Until"
+            value={settings.workingHours.end}
+            onChange={(e) => handleWorkingHoursChange('end', e.target.value)}
+          />
         </div>
       </div>
     </Card>

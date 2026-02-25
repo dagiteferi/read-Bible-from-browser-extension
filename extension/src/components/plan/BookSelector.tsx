@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Card } from '../common/Card';
+import { useState, useEffect } from 'react';
 import { getBooks, getBookMetadata } from '../../services/api/bible';
 import { AMHARIC_BOOK_NAMES, BOOK_GROUPS } from '../../constants/books';
 import { BookMetadata } from '../../types/api';
@@ -26,7 +25,7 @@ export const BookSelector: React.FC<BookSelectorProps> = ({ selectedBooks, onBoo
         const metadataMap = metadataResults.reduce((acc, meta) => {
           acc[meta.book] = meta;
           return acc;
-        }, {});
+        }, {} as Record<string, BookMetadata>);
         setBookMetadata(metadataMap);
       } catch (err) {
         setError('Failed to load Bible books.');
@@ -45,42 +44,54 @@ export const BookSelector: React.FC<BookSelectorProps> = ({ selectedBooks, onBoo
     onBookSelect(newSelection);
   };
 
-  if (loading) return <Card><p>Loading books...</p></Card>;
-  if (error) return <Card><p className="text-burgundy-curtain">{error}</p></Card>;
+  if (loading) return <div className="loading-pulse h-[400px] w-full" />;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-indigo-deep dark:text-dark-indigo">Select Books</h2>
-      <p className="mt-2 text-text-secondary dark:text-dark-text-secondary">
-        Choose the books you wish to include in your reading plan.
-      </p>
-      <div className="mt-4 space-y-4">
+    <div className="space-y-24 animate-fade-in">
+      <div className="space-y-8">
+        <h2 className="text-18 font-medium text-indigo-prayer dark:text-night-text uppercase tracking-widest">
+          The Word
+        </h2>
+        <p className="text-text-secondary dark:text-night-text-muted text-sm italic">
+          Select the scrolls you wish to meditate upon.
+        </p>
+      </div>
+
+      <div className="h-[400px] overflow-y-auto pr-8 space-y-24 custom-scrollbar">
         {Object.entries(BOOK_GROUPS).map(([groupName, booksInGroup]) => (
-          <div key={groupName}>
-            <h3 className="font-medium text-indigo-deep dark:text-dark-indigo mb-2">{groupName}</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {booksInGroup.filter(book => availableBooks.includes(book)).map(book => (
-                <button
-                  key={book}
-                  onClick={() => handleToggleBook(book)}
-                  className={`book-option p-2 rounded-md text-left transition-colors
-                    ${selectedBooks.includes(book)
-                      ? 'bg-amber-warm text-white'
-                      : 'bg-gray-100 dark:bg-dark-surface hover:bg-gray-200 dark:hover:bg-gray-600 text-text-primary dark:text-dark-text'
-                    }`}
-                >
-                  {AMHARIC_BOOK_NAMES[book] || book}
-                  {bookMetadata[book] && (
-                    <span className="block text-xs opacity-75">
-                      {bookMetadata[book].chapter_count} chapters
+          <div key={groupName} className="space-y-12">
+            <h3 className="text-12 font-bold text-amber-spirit dark:text-night-amber uppercase tracking-wider border-b border-border-light dark:border-night-border pb-4">
+              {groupName}
+            </h3>
+            <div className="grid grid-cols-2 gap-8">
+              {booksInGroup.filter(book => availableBooks.includes(book)).map(book => {
+                const isSelected = selectedBooks.includes(book);
+                return (
+                  <button
+                    key={book}
+                    onClick={() => handleToggleBook(book)}
+                    className={`flex flex-col p-12 rounded-sacred text-left transition-all duration-200 group
+                      ${isSelected
+                        ? 'bg-indigo-prayer text-white shadow-sacred ring-2 ring-amber-spirit ring-offset-1 dark:ring-offset-night-bg'
+                        : 'bg-white dark:bg-night-surface border border-border-light dark:border-night-border hover:border-amber-spirit'
+                      }`}
+                  >
+                    <span className={`font-ethiopic text-16 ${isSelected ? 'text-white' : 'text-text-primary dark:text-night-text group-hover:text-amber-spirit'}`}>
+                      {(AMHARIC_BOOK_NAMES as any)[book] || book}
                     </span>
-                  )}
-                </button>
-              ))}
+                    {bookMetadata[book] && (
+                      <span className={`text-[10px] uppercase font-bold tracking-tighter opacity-70 ${isSelected ? 'text-cream' : 'text-text-secondary'}`}>
+                        {bookMetadata[book].chapter_count} chapters
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 };
