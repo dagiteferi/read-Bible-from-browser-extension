@@ -29,3 +29,7 @@ extension/build/
 .idea/
 *.swp
 .DS_Store
+
+
+dist.crx
+dist.pem
