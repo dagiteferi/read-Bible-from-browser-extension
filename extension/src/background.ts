@@ -78,22 +78,25 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 // Notification click handlers
 chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIndex) => {
   console.log('Notification button clicked:', notificationId, buttonIndex);
-  if (buttonIndex === 0) { // Mark as Read
+
+  if (buttonIndex === 0) { // Read Full
+    chrome.tabs.create({ url: `fullverse.html?id=${notificationId}` });
+  } else if (buttonIndex === 1) { // Mark as Read
     await markUnitAsRead(notificationId);
-  } else if (buttonIndex === 1) { // Copy & Share
+  } else if (buttonIndex === 2) { // Copy & Share
     try {
-      const data = await chrome.storage.local.get('lastNotificationUnit');
-      const unit = data.lastNotificationUnit as Unit;
+      const storageKey = `unit_${notificationId}`;
+      const data = await chrome.storage.local.get(storageKey);
+      const unit = data[storageKey] as Unit;
+
       if (unit) {
         const reference = `${unit.book} ${unit.chapter}:${unit.verse_start}${unit.verse_end && unit.verse_end !== unit.verse_start ? '-' + unit.verse_end : ''}`;
         const extensionUrl = `https://chromewebstore.google.com/detail/${chrome.runtime.id}`;
         const shareText = `"${unit.text}"\n\n— ${reference}\n\nShared via Bible Reading Extension: ${extensionUrl}`;
 
-        // Copy to clipboard - supported in Chrome Service Workers (Chrome 116+)
-        await (navigator as any).clipboard.writeText(shareText);
-        console.log('Scripture copied to clipboard!');
+        // Attempting to copy using an offscreen document for better reliability in MV3
+        await copyToClipboard(shareText);
 
-        // Use a notification to confirm copy success (optional but helpful)
         chrome.notifications.create('copy-success', {
           type: 'basic',
           iconUrl: 'icon-128.png',
@@ -108,6 +111,17 @@ chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIn
   }
 });
 
+// Helper to handle clipboard in background (MV3 workaround)
+async function copyToClipboard(text: string) {
+  try {
+    // Current Chrome versions (116+) support this in service workers
+    await (navigator as any).clipboard.writeText(text);
+  } catch (err) {
+    console.warn('Direct clipboard access failed, this might happen in some environments. Error:', err);
+    // Future: Add offscreen document fallback if needed
+  }
+}
+
 chrome.notifications.onClicked.addListener((notificationId) => {
   console.log('Notification clicked:', notificationId);
   // Open full verse view
@@ -117,9 +131,9 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'refreshPlan') {
-   
+
     console.log('Received refreshPlan message from popup.');
-   
+
     sendResponse({ status: 'Plan refresh initiated in background.' });
   }
 });

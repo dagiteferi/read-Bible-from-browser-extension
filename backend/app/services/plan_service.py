@@ -68,6 +68,12 @@ class PlanService:
                 high = end_v if c == end_ch else vc
                 total_verses += max(0, high - low + 1)
 
+        # SDS: target_units, base_verses_per_unit, verses_per_unit
+        today = date.today()
+        target_date_val = payload.target_date or today
+        days_remaining = max(0, (target_date_val - today).days) or 1
+        frequency = payload.frequency or "daily"
+        
         from app.utils.time_helpers import calculate_active_minutes
         active_mins_per_day = calculate_active_minutes(payload.working_hours.model_dump() if payload.working_hours else None)
         deliveries_per_day = max(1, active_mins_per_day // payload.time_lap_minutes)
@@ -246,6 +252,10 @@ class PlanService:
         plan.target_date = new_target
 
         # Recalculate verses_per_unit for remaining verses
+        today = date.today()
+        days_remaining = max(1, (new_target - today).days)
+        frequency = plan.frequency or "daily"
+        
         from app.utils.time_helpers import calculate_active_minutes
         active_mins_per_day = calculate_active_minutes(plan.working_hours)
         deliveries_per_day = max(1, active_mins_per_day // plan.time_lap_minutes)
