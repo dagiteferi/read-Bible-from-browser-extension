@@ -1,4 +1,4 @@
-import { setupAlarms, scheduleSnooze } from './services/background/alarmManager';
+import { setupAlarms } from './services/background/alarmManager';
 import { createNotification, markUnitAsRead } from './services/background/notificationManager';
 import { checkDeliveryWindow } from './services/background/environmentDetector';
 import { syncOfflineActions } from './services/background/syncManager';
@@ -8,6 +8,7 @@ import { getOrCreateDeviceId } from './utils/deviceId';
 import { getNextUnit } from './services/api/plans';
 import { UserSettings } from './types/storage';
 import { Plan } from './types/plan';
+import { Unit } from './types/api';
 
 console.log('Service Worker Loaded');
 
@@ -79,10 +80,31 @@ chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIn
   console.log('Notification button clicked:', notificationId, buttonIndex);
   if (buttonIndex === 0) { // Mark as Read
     await markUnitAsRead(notificationId);
-    // Optionally, refresh plan progress in popup if it's open
-  } else if (buttonIndex === 1) { // Snooze
-    chrome.notifications.clear(notificationId);
-    scheduleSnooze(); // Schedule a new alarm for snooze
+  } else if (buttonIndex === 1) { // Copy & Share
+    try {
+      const data = await chrome.storage.local.get('lastNotificationUnit');
+      const unit = data.lastNotificationUnit as Unit;
+      if (unit) {
+        const reference = `${unit.book} ${unit.chapter}:${unit.verse_start}${unit.verse_end && unit.verse_end !== unit.verse_start ? '-' + unit.verse_end : ''}`;
+        const extensionUrl = `https://chromewebstore.google.com/detail/${chrome.runtime.id}`;
+        const shareText = `"${unit.text}"\n\n— ${reference}\n\nShared via Bible Reading Extension: ${extensionUrl}`;
+
+        // Copy to clipboard - supported in Chrome Service Workers (Chrome 116+)
+        await (navigator as any).clipboard.writeText(shareText);
+        console.log('Scripture copied to clipboard!');
+
+        // Use a notification to confirm copy success (optional but helpful)
+        chrome.notifications.create('copy-success', {
+          type: 'basic',
+          iconUrl: 'icon-128.png',
+          title: '✅ Copied to Clipboard',
+          message: 'Scripture is ready to share.',
+          priority: 0
+        });
+      }
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+    }
   }
 });
 

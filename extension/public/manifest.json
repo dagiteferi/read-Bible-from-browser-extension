@@ -25,7 +25,8 @@
     "alarms",
     "notifications",
     "activeTab",
-    "scripting"
+    "scripting",
+    "clipboardWrite"
   ],
   "host_permissions": [
     "<all_urls>"
