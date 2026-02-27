@@ -23,6 +23,7 @@ interface PlanReviewProps {
   selectedBooks: string[];
   targetDate: string;
   maxVersesPerUnit: number;
+  deliveriesPerDay: number;
   quietHours: TimeRange;
   workingHours: TimeRange;
 }
@@ -31,6 +32,7 @@ export const PlanReview: React.FC<PlanReviewProps> = ({
   selectedBooks,
   targetDate,
   maxVersesPerUnit,
+  deliveriesPerDay,
   quietHours,
   workingHours,
 }) => {
@@ -62,8 +64,12 @@ export const PlanReview: React.FC<PlanReviewProps> = ({
             <p className="text-[14px] font-bold text-foreground">{targetDate || 'Continuous'}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
-            <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Meditative Pace</p>
-            <p className="text-[14px] font-bold text-foreground">{maxVersesPerUnit} Verses / unit</p>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Time Lap</p>
+            <p className="text-[14px] font-bold text-foreground">{deliveriesPerDay} / day</p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Portion Size</p>
+            <p className="text-[14px] font-bold text-foreground">{maxVersesPerUnit} Verses</p>
           </div>
         </div>
 

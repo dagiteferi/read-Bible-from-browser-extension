@@ -11,9 +11,8 @@ class ReadingUnitResponse(BaseModel):
     chapter: int
     verse_start: int
     verse_end: int
-    verse_range: dict  # {"start": int, "end": int}
     text: str = ""
-    index: int
+    unit_index: int
     state: str  # pending, delivered, read
 
     class Config:

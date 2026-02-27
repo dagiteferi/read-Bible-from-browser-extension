@@ -22,14 +22,17 @@ def adjusted_verses_per_unit(
     max_verses_per_unit: int,
     frequency: str,
     missed_days: int = 0,
+    deliveries_per_day: int = 1,
 ) -> int:
-    """SDS: new_verses_per_unit = min(max_verses_per_unit, (remaining + buffer) / remaining_days)."""
+    """SDS: new_verses_per_unit = min(max_verses_per_unit, (remaining + buffer) / remaining_units)."""
     if remaining_days <= 0:
         return max_verses_per_unit
-    # Target: fit remaining_verses into remaining_days (daily) or remaining_weeks (weekly)
+    
+    # Calculate total remaining delivery moments (units)
     if frequency == "weekly":
-        remaining_units = max(1, remaining_days // 7)
+        remaining_units = max(1, (remaining_days // 7) * deliveries_per_day)
     else:
-        remaining_units = max(1, remaining_days)
+        remaining_units = max(1, remaining_days * deliveries_per_day)
+        
     base = max(1, (remaining_verses + missed_days) // remaining_units)
     return min(base, max_verses_per_unit)

@@ -59,6 +59,7 @@ class SchedulerService:
             max_verses_per_unit=plan.max_verses_per_unit,
             frequency=frequency,
             missed_days=missed,
+            deliveries_per_day=plan.deliveries_per_day,
         )
         next_ts = next_valid_delivery_timestamp(
             plan.quiet_hours,

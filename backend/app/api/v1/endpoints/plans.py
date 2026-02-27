@@ -64,8 +64,7 @@ async def get_plan(id: UUID, db: AsyncSession = Depends(get_db)):
             chapter=u.chapter,
             verse_start=u.verse_start,
             verse_end=u.verse_end,
-            verse_range={"start": u.verse_start, "end": u.verse_end},
-            index=u.unit_index,
+            unit_index=u.unit_index,
             state=u.state,
         )
         for u in units
@@ -79,6 +78,7 @@ async def get_plan(id: UUID, db: AsyncSession = Depends(get_db)):
         frequency=plan.frequency,
         quiet_hours=plan.quiet_hours,
         max_verses_per_unit=plan.max_verses_per_unit,
+        deliveries_per_day=plan.deliveries_per_day,
         state=plan.state,
         units=unit_list,
     )
@@ -118,9 +118,8 @@ async def get_next_unit(id: UUID, db: AsyncSession = Depends(get_db)):
             chapter=unit.chapter,
             verse_start=unit.verse_start,
             verse_end=unit.verse_end,
-            verse_range={"start": unit.verse_start, "end": unit.verse_end},
             text=text,
-            index=unit.unit_index,
+            unit_index=unit.unit_index,
             state=unit.state,
         )
     )

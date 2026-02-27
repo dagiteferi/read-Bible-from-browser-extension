@@ -21,6 +21,8 @@ interface GoalSelectorProps {
   onTargetDateChange: (date: string) => void;
   maxVersesPerUnit: number;
   onMaxVersesChange: (verses: number) => void;
+  deliveriesPerDay: number;
+  onDeliveriesPerDayChange: (count: number) => void;
 }
 
 export const GoalSelector: React.FC<GoalSelectorProps> = ({
@@ -28,6 +30,8 @@ export const GoalSelector: React.FC<GoalSelectorProps> = ({
   onTargetDateChange,
   maxVersesPerUnit,
   onMaxVersesChange,
+  deliveriesPerDay,
+  onDeliveriesPerDayChange,
 }) => {
   return (
     <div className="space-y-6 animate-fade-in">
@@ -60,6 +64,39 @@ export const GoalSelector: React.FC<GoalSelectorProps> = ({
           />
         </div>
 
+        {/* Daily Frequency (Time Lap) Card */}
+        <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-indigo-500/10 text-indigo-500 rounded-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Time Lap</h3>
+              <p className="text-[11px] text-muted-foreground">Deliveries per day</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 mb-2">
+            <input
+              type="range"
+              id="deliveriesPerDay"
+              value={deliveriesPerDay}
+              onChange={(e) => onDeliveriesPerDayChange(parseInt(e.target.value))}
+              min="1"
+              max="12"
+              className="flex-1 accent-indigo-500"
+            />
+            <span className="w-10 text-center font-bold text-lg text-indigo-500">{deliveriesPerDay}</span>
+          </div>
+
+          <div className="flex justify-between px-1">
+            <span className="text-[10px] text-muted-foreground font-medium">DAILY</span>
+            <span className="text-[10px] text-muted-foreground font-medium">EVERY 2 HRS</span>
+          </div>
+        </div>
+
         {/* Verse Limit Card */}
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
@@ -67,8 +104,8 @@ export const GoalSelector: React.FC<GoalSelectorProps> = ({
               <CompassIcon />
             </div>
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Daily Limit</h3>
-              <p className="text-[11px] text-muted-foreground">Maximum verses per delivery</p>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Portion Size</h3>
+              <p className="text-[11px] text-muted-foreground">Max verses per delivery</p>
             </div>
           </div>
 
@@ -80,9 +117,9 @@ export const GoalSelector: React.FC<GoalSelectorProps> = ({
               onChange={(e) => onMaxVersesChange(parseInt(e.target.value))}
               min="1"
               max="50"
-              className="flex-1 accent-accent"
+              className="flex-1 accent-success"
             />
-            <span className="w-10 text-center font-bold text-lg text-accent">{maxVersesPerUnit}</span>
+            <span className="w-10 text-center font-bold text-lg text-success">{maxVersesPerUnit}</span>
           </div>
 
           <div className="flex justify-between px-1">

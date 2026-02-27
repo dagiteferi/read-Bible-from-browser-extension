@@ -135,6 +135,7 @@ const CreatePlan = () => {
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [targetDate, setTargetDate] = useState('');
   const [maxVersesPerUnit, setMaxVersesPerUnit] = useState(10);
+  const [deliveriesPerDay, setDeliveriesPerDay] = useState(1);
   const [quietHours, setQuietHours] = useState<TimeRange>(settings.quietHours);
   const [workingHours, setWorkingHours] = useState<TimeRange>(settings.workingHours);
 
@@ -156,6 +157,7 @@ const CreatePlan = () => {
         target_date: targetDate || undefined,
         frequency: 'daily',
         max_verses_per_unit: maxVersesPerUnit,
+        deliveries_per_day: deliveriesPerDay,
         quiet_hours: quietHours,
       };
       if (selectedBooks.length > 0) {
@@ -167,7 +169,7 @@ const CreatePlan = () => {
       const newPlan = await createPlan(planData);
       if (newPlan) {
         setIsVerified(true);
-        setSelectedBooks([]); setTargetDate(''); setMaxVersesPerUnit(10);
+        setSelectedBooks([]); setTargetDate(''); setMaxVersesPerUnit(10); setDeliveriesPerDay(1);
       } else { setError('Failed to create plan. Please try again.'); }
     } catch (err: any) {
       setError(err.message || 'Failed to create plan.');
@@ -183,6 +185,7 @@ const CreatePlan = () => {
         target_date: undefined,
         frequency: 'daily',
         max_verses_per_unit: maxVersesPerUnit,
+        deliveries_per_day: deliveriesPerDay,
         quiet_hours: settings.quietHours,
       };
       const newPlan = await createPlan(planData);
@@ -371,9 +374,18 @@ const CreatePlan = () => {
   const renderStep = () => {
     switch (step) {
       case 1: return <BookSelector selectedBooks={selectedBooks} onBookSelect={setSelectedBooks} />;
-      case 2: return <GoalSelector targetDate={targetDate} onTargetDateChange={setTargetDate} maxVersesPerUnit={maxVersesPerUnit} onMaxVersesChange={setMaxVersesPerUnit} />;
+      case 2: return (
+        <GoalSelector
+          targetDate={targetDate}
+          onTargetDateChange={setTargetDate}
+          maxVersesPerUnit={maxVersesPerUnit}
+          onMaxVersesChange={setMaxVersesPerUnit}
+          deliveriesPerDay={deliveriesPerDay}
+          onDeliveriesPerDayChange={setDeliveriesPerDay}
+        />
+      );
       case 3: return <RhythmSettings quietHours={quietHours} onQuietHoursChange={setQuietHours} workingHours={workingHours} onWorkingHoursChange={setWorkingHours} />;
-      case 4: return <PlanReview selectedBooks={selectedBooks} targetDate={targetDate} maxVersesPerUnit={maxVersesPerUnit} quietHours={quietHours} workingHours={workingHours} />;
+      case 4: return <PlanReview selectedBooks={selectedBooks} targetDate={targetDate} maxVersesPerUnit={maxVersesPerUnit} deliveriesPerDay={deliveriesPerDay} quietHours={quietHours} workingHours={workingHours} />;
       default: return null;
     }
   };

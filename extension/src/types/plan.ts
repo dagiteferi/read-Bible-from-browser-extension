@@ -6,6 +6,7 @@ export interface Plan {
   target_date?: string;
   frequency?: 'daily' | 'weekly';
   max_verses_per_unit: number;
+  deliveries_per_day: number;
   boundaries?: {
     chapter_start: number;
     verse_start: number;
