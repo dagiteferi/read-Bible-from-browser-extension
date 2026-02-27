@@ -30,22 +30,6 @@ export const PlanProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<Error | null>(null);
   const { queueOfflineAction, isOnline } = useOfflineQueue(); // Use the offline queue hook
 
-  useEffect(() => {
-    const loadActivePlan = async () => {
-      const storedPlan = await getLocal(ACTIVE_PLAN_KEY);
-      if (storedPlan) {
-        setCurrentPlan(storedPlan);
-      }
-    };
-    loadActivePlan();
-  }, []);
-
-  useEffect(() => {
-    if (currentPlan) {
-      refreshPlan();
-    }
-  }, [currentPlan?.id]); // Refresh when active plan changes
-
   const setActivePlan = async (plan: Plan | null) => {
     console.log('[PlanContext] Setting active plan:', plan?.id || 'null');
     setCurrentPlan(plan);
@@ -71,6 +55,32 @@ export const PlanProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const loadActivePlan = async () => {
+      const storedPlan = await getLocal(ACTIVE_PLAN_KEY);
+      if (storedPlan) {
+        setCurrentPlan(storedPlan);
+      }
+    };
+    loadActivePlan();
+
+    // Listen for messages from background script
+    const messageListener = (message: any) => {
+      if (message.action === 'refreshPlan') {
+        console.log('[PlanContext] Received refreshPlan message from background');
+        refreshPlan();
+      }
+    };
+    chrome.runtime.onMessage.addListener(messageListener);
+    return () => chrome.runtime.onMessage.removeListener(messageListener);
+  }, []);
+
+  useEffect(() => {
+    if (currentPlan) {
+      refreshPlan();
+    }
+  }, [currentPlan?.id]); // Refresh when active plan changes
 
   const markUnitRead = async (unitId: string) => {
     if (!currentPlan?.id) return;
