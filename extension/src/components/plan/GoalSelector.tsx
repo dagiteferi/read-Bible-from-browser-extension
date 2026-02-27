@@ -33,7 +33,7 @@ export const GoalSelector: React.FC<GoalSelectorProps> = ({
   timeLapMinutes,
   onTimeLapMinutesChange,
 }) => {
-  const lapOptions = [15, 30, 45, 60, 90, 120, 180, 240, 360, 480];
+  const lapOptions = [5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 360, 480];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -86,8 +86,8 @@ export const GoalSelector: React.FC<GoalSelectorProps> = ({
                 key={mins}
                 onClick={() => onTimeLapMinutesChange(mins)}
                 className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${timeLapMinutes === mins
-                    ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30'
-                    : 'bg-secondary text-muted-foreground hover:bg-border'
+                  ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30'
+                  : 'bg-secondary text-muted-foreground hover:bg-border'
                   }`}
               >
                 {mins < 60 ? `${mins}m` : `${mins / 60}h`}
