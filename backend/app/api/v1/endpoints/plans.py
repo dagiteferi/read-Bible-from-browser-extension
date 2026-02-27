@@ -77,8 +77,9 @@ async def get_plan(id: UUID, db: AsyncSession = Depends(get_db)):
         target_date=plan.target_date,
         frequency=plan.frequency,
         quiet_hours=plan.quiet_hours,
+        working_hours=plan.working_hours,
         max_verses_per_unit=plan.max_verses_per_unit,
-        deliveries_per_day=plan.deliveries_per_day,
+        time_lap_minutes=plan.time_lap_minutes,
         state=plan.state,
         units=unit_list,
     )

@@ -9,14 +9,15 @@ export interface CreatePlanRequest {
   target_date?: string;
   frequency?: 'daily' | 'weekly';
   max_verses_per_unit?: number;
-  deliveries_per_day?: number;
+  time_lap_minutes?: number;
+  quiet_hours?: { start: string; end: string };
+  working_hours?: { start: string; end: string };
   boundaries?: {
     chapter_start: number;
     verse_start: number;
     chapter_end?: number;
     verse_end?: number;
   };
-  quiet_hours?: { start: string; end: string };
 }
 
 export interface CreatePlanResponse {

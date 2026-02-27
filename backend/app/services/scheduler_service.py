@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.utils.time_helpers import calculate_active_minutes
 from app.models import Plan, ReadingUnit
 from app.utils.compensation import (
     calculate_missed_working_days,
@@ -49,6 +49,10 @@ class SchedulerService:
         remaining_verses = await self.remaining_verses(plan_id)
         remaining_days = max(0, (target - from_date).days) or 1
         frequency = plan.frequency or "daily"
+      
+        active_mins = calculate_active_minutes(plan.working_hours)
+        deliveries_per_day = max(1, active_mins // plan.time_lap_minutes)
+
         missed = calculate_missed_working_days(
             target, from_date, frequency
         )
@@ -59,7 +63,7 @@ class SchedulerService:
             max_verses_per_unit=plan.max_verses_per_unit,
             frequency=frequency,
             missed_days=missed,
-            deliveries_per_day=plan.deliveries_per_day,
+            deliveries_per_day=deliveries_per_day,
         )
         next_ts = next_valid_delivery_timestamp(
             plan.quiet_hours,

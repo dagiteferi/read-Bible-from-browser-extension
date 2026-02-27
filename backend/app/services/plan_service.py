@@ -68,12 +68,11 @@ class PlanService:
                 high = end_v if c == end_ch else vc
                 total_verses += max(0, high - low + 1)
 
-        # SDS: target_units, base_verses_per_unit, verses_per_unit
-        today = date.today()
-        target_date = payload.target_date or today
-        days_remaining = max(0, (target_date - today).days) or 1
-        frequency = payload.frequency or "daily"
-        target_units = days_remaining * (payload.deliveries_per_day if frequency == "daily" else 7 * payload.deliveries_per_day)
+        from app.utils.time_helpers import calculate_active_minutes
+        active_mins_per_day = calculate_active_minutes(payload.working_hours.model_dump() if payload.working_hours else None)
+        deliveries_per_day = max(1, active_mins_per_day // payload.time_lap_minutes)
+        
+        target_units = days_remaining * (deliveries_per_day if frequency == "daily" else 7 * deliveries_per_day)
         target_units = max(1, target_units)
         base_verses_per_unit = max(1, total_verses // target_units)
         verses_per_unit = min(base_verses_per_unit, payload.max_verses_per_unit)
@@ -86,7 +85,8 @@ class PlanService:
             frequency=payload.frequency,
             quiet_hours=payload.quiet_hours.model_dump() if payload.quiet_hours else None,
             max_verses_per_unit=payload.max_verses_per_unit,
-            deliveries_per_day=payload.deliveries_per_day,
+            time_lap_minutes=payload.time_lap_minutes,
+            working_hours=payload.working_hours.model_dump() if payload.working_hours else None,
             state="active",
         )
         self.db.add(plan)
@@ -188,8 +188,10 @@ class PlanService:
             plan.quiet_hours = payload.quiet_hours.model_dump()
         if payload.max_verses_per_unit is not None:
             plan.max_verses_per_unit = payload.max_verses_per_unit
-        if payload.deliveries_per_day is not None:
-            plan.deliveries_per_day = payload.deliveries_per_day
+        if payload.time_lap_minutes is not None:
+            plan.time_lap_minutes = payload.time_lap_minutes
+        if payload.working_hours is not None:
+            plan.working_hours = payload.working_hours.model_dump()
         if payload.state is not None:
             plan.state = payload.state
         plan.updated_at = datetime.utcnow()
@@ -244,10 +246,11 @@ class PlanService:
         plan.target_date = new_target
 
         # Recalculate verses_per_unit for remaining verses
-        today = date.today()
-        days_remaining = max(1, (new_target - today).days)
-        frequency = plan.frequency or "daily"
-        target_units = days_remaining * (plan.deliveries_per_day if frequency == "daily" else 7 * plan.deliveries_per_day)
+        from app.utils.time_helpers import calculate_active_minutes
+        active_mins_per_day = calculate_active_minutes(plan.working_hours)
+        deliveries_per_day = max(1, active_mins_per_day // plan.time_lap_minutes)
+        
+        target_units = days_remaining * (deliveries_per_day if frequency == "daily" else 7 * deliveries_per_day)
         target_units = max(1, target_units)
         base_verses_per_unit = max(1, remaining_verses // target_units)
         verses_per_unit = min(base_verses_per_unit, plan.max_verses_per_unit)

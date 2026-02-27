@@ -42,8 +42,12 @@ class PlanCreate(BaseModel):
         None, 
         description="Time periods when notifications should be paused"
     )
+    working_hours: QuietHoursSchema | None = Field(
+        None,
+        description="Time periods when notifications are allowed"
+    )
     max_verses_per_unit: int = Field(3, ge=1, le=50, description="Maximum verses delivered in a single notification")
-    deliveries_per_day: int = Field(1, ge=1, le=24, description="Number of notifications to send per working day")
+    time_lap_minutes: int = Field(60, ge=1, le=1440, description="Interval between notifications in minutes")
 
     model_config = {
         "json_schema_extra": {
@@ -70,8 +74,9 @@ class PlanUpdate(BaseModel):
     target_date: date | None = None
     frequency: str | None = None
     quiet_hours: QuietHoursSchema | None = None
+    working_hours: QuietHoursSchema | None = None
     max_verses_per_unit: int | None = None
-    deliveries_per_day: int | None = None
+    time_lap_minutes: int | None = None
     state: str | None = Field(None, pattern="^(active|paused|completed)$")
 
 
@@ -104,8 +109,9 @@ class PlanResponse(BaseModel):
     target_date: date | None
     frequency: str | None
     quiet_hours: QuietHoursSchema | None
+    working_hours: QuietHoursSchema | None
     max_verses_per_unit: int
-    deliveries_per_day: int
+    time_lap_minutes: int
     state: str
     units: list[ReadingUnitInPlan] = []
 
