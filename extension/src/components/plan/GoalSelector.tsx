@@ -21,8 +21,8 @@ interface GoalSelectorProps {
   onTargetDateChange: (date: string) => void;
   maxVersesPerUnit: number;
   onMaxVersesChange: (verses: number) => void;
-  deliveriesPerDay: number;
-  onDeliveriesPerDayChange: (count: number) => void;
+  timeLapMinutes: number;
+  onTimeLapMinutesChange: (minutes: number) => void;
 }
 
 export const GoalSelector: React.FC<GoalSelectorProps> = ({
@@ -30,9 +30,11 @@ export const GoalSelector: React.FC<GoalSelectorProps> = ({
   onTargetDateChange,
   maxVersesPerUnit,
   onMaxVersesChange,
-  deliveriesPerDay,
-  onDeliveriesPerDayChange,
+  timeLapMinutes,
+  onTimeLapMinutesChange,
 }) => {
+  const lapOptions = [15, 30, 45, 60, 90, 120, 180, 240, 360, 480];
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header section */}
@@ -74,26 +76,28 @@ export const GoalSelector: React.FC<GoalSelectorProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Time Lap</h3>
-              <p className="text-[11px] text-muted-foreground">Deliveries per day</p>
+              <p className="text-[11px] text-muted-foreground">Interval between notifications</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 mb-2">
-            <input
-              type="range"
-              id="deliveriesPerDay"
-              value={deliveriesPerDay}
-              onChange={(e) => onDeliveriesPerDayChange(parseInt(e.target.value))}
-              min="1"
-              max="12"
-              className="flex-1 accent-indigo-500"
-            />
-            <span className="w-10 text-center font-bold text-lg text-indigo-500">{deliveriesPerDay}</span>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {lapOptions.map((mins) => (
+              <button
+                key={mins}
+                onClick={() => onTimeLapMinutesChange(mins)}
+                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${timeLapMinutes === mins
+                    ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30'
+                    : 'bg-secondary text-muted-foreground hover:bg-border'
+                  }`}
+              >
+                {mins < 60 ? `${mins}m` : `${mins / 60}h`}
+              </button>
+            ))}
           </div>
 
           <div className="flex justify-between px-1">
-            <span className="text-[10px] text-muted-foreground font-medium">DAILY</span>
-            <span className="text-[10px] text-muted-foreground font-medium">EVERY 2 HRS</span>
+            <span className="text-[10px] text-muted-foreground font-medium">FREQUENT</span>
+            <span className="text-[10px] text-muted-foreground font-medium">SPACED</span>
           </div>
         </div>
 

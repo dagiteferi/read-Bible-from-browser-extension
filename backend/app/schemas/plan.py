@@ -57,9 +57,14 @@ class PlanCreate(BaseModel):
                 "target_date": "2026-06-30",
                 "frequency": "daily",
                 "max_verses_per_unit": 5,
+                "time_lap_minutes": 60,
                 "quiet_hours": {
                     "start": "22:00",
                     "end": "06:00"
+                },
+                "working_hours": {
+                    "start": "08:00",
+                    "end": "17:00"
                 }
             }
         }

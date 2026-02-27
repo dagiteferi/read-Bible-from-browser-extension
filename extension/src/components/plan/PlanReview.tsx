@@ -23,7 +23,7 @@ interface PlanReviewProps {
   selectedBooks: string[];
   targetDate: string;
   maxVersesPerUnit: number;
-  deliveriesPerDay: number;
+  timeLapMinutes: number;
   quietHours: TimeRange;
   workingHours: TimeRange;
 }
@@ -32,7 +32,7 @@ export const PlanReview: React.FC<PlanReviewProps> = ({
   selectedBooks,
   targetDate,
   maxVersesPerUnit,
-  deliveriesPerDay,
+  timeLapMinutes,
   quietHours,
   workingHours,
 }) => {
@@ -65,7 +65,7 @@ export const PlanReview: React.FC<PlanReviewProps> = ({
           </div>
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
             <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Time Lap</p>
-            <p className="text-[14px] font-bold text-foreground">{deliveriesPerDay} / day</p>
+            <p className="text-[14px] font-bold text-foreground">{timeLapMinutes < 60 ? `${timeLapMinutes}m` : `${timeLapMinutes / 60}h`}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
             <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Portion Size</p>
