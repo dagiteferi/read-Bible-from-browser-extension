@@ -30,7 +30,7 @@ export const syncOfflineActions = async () => {
           console.log(`Successfully synced 'createPlan' for plan: ${action.payload.planData.books[0]}...`);
           successfulActions.push(action);
           break;
-        // Add other action types here
+        
         default:
           console.warn(`Unknown offline action type: ${action.type}`);
           failedActions.push(action); // Treat as failed if unknown

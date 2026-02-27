@@ -97,7 +97,7 @@ chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIn
         chrome.notifications.create('copy-success', {
           type: 'basic',
           iconUrl: 'icon-128.png',
-          title: '✅ Copied to Clipboard',
+          title: 'Copied to Clipboard',
           message: 'Scripture is ready to share.',
           priority: 0
         });
@@ -114,14 +114,12 @@ chrome.notifications.onClicked.addListener((notificationId) => {
   chrome.tabs.create({ url: `fullverse.html?id=${notificationId}` });
 });
 
-// Listen for messages from other parts of the extension (e.g., popup)
+
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'refreshPlan') {
-    // Trigger a refresh of the plan data in the background
-    // This might involve re-fetching progress and updating local storage
+   
     console.log('Received refreshPlan message from popup.');
-    // You might want to call refreshPlan from usePlanContext here, but that's in the UI thread.
-    // For background, you'd re-fetch and update storage directly.
+   
     sendResponse({ status: 'Plan refresh initiated in background.' });
   }
 });
