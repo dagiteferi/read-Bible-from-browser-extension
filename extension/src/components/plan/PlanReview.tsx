@@ -1,5 +1,23 @@
+import React from 'react';
 import { TimeRange } from '../../types/storage';
 import { AMHARIC_BOOK_NAMES } from '../../constants/books';
+
+const BookOpenIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+  </svg>
+);
+
+const ScrollIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+    <polyline points="14 2 14 8 20 8"></polyline>
+    <line x1="16" y1="13" x2="8" y2="13"></line>
+    <line x1="16" y1="17" x2="8" y2="17"></line>
+    <polyline points="10 9 9 9 8 9"></polyline>
+  </svg>
+);
 
 interface PlanReviewProps {
   selectedBooks: string[];
@@ -17,95 +35,80 @@ export const PlanReview: React.FC<PlanReviewProps> = ({
   workingHours,
 }) => {
   return (
-    <div className="space-y-24 animate-fade-in">
-      <div className="space-y-8">
-        <h2 className="text-18 font-medium text-indigo-prayer dark:text-night-text uppercase tracking-widest text-center">
-          Review Vow
-        </h2>
-        <p className="text-text-secondary dark:text-night-text-muted text-sm italic text-center">
-          A summary of your sacred commitment.
-        </p>
+    <div className="space-y-6 animate-fade-in pb-4">
+      <div className="text-center mb-8">
+        <h2 className="text-xl font-bold text-primary mb-1">A Sacred Commitment</h2>
+        <p className="text-sm text-muted-foreground italic">"Heaven and earth will pass away, but my words will never pass away." — Matthew 24:35</p>
       </div>
 
-      <div className="space-y-16 mt-6">
-        <div className="bg-white dark:bg-night-surface border border-border-light dark:border-night-border rounded-sacred p-16 shadow-sm">
-          <div className="flex items-center gap-12 mb-12">
-            <div className="w-10 h-10 rounded-full bg-indigo-prayer/10 flex items-center justify-center text-indigo-prayer shrink-0">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-              </svg>
+      <div className="space-y-4">
+        {/* Books Section */}
+        <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-primary/10 text-primary rounded-lg">
+              <BookOpenIcon />
             </div>
-            <div>
-              <p className="text-[10px] uppercase font-bold tracking-widest text-text-secondary">Selected Books</p>
-              <p className="font-ethiopic text-text-primary dark:text-night-text text-[15px] font-semibold leading-relaxed mt-1" data-amharic="true">
-                {selectedBooks.length > 0 ? selectedBooks.map(b => (AMHARIC_BOOK_NAMES as any)[b] || b).join('፣ ') : 'None selected'}
-              </p>
-            </div>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Selected Scripture</h3>
+          </div>
+          <p className="font-ethiopic text-text-primary dark:text-night-text text-[15px] font-semibold leading-relaxed pl-1" data-amharic="true">
+            {selectedBooks.length > 0 ? selectedBooks.map(b => (AMHARIC_BOOK_NAMES as any)[b] || b).join('፣ ') : 'None selected'}
+          </p>
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Completion</p>
+            <p className="text-[14px] font-bold text-foreground">{targetDate || 'Continuous'}</p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Meditative Pace</p>
+            <p className="text-[14px] font-bold text-foreground">{maxVersesPerUnit} Verses / unit</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-12">
-          <div className="bg-white dark:bg-night-surface border border-border-light dark:border-night-border rounded-sacred p-16 shadow-sm flex items-center gap-10">
-            <div className="w-8 h-8 rounded-full bg-amber-spirit/10 flex items-center justify-center text-amber-spirit shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
+        {/* Schedule Summary */}
+        <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-accent/10 text-accent rounded-lg">
+              <ScrollIcon />
             </div>
-            <div>
-              <p className="text-[9px] uppercase font-bold tracking-widest text-text-secondary">Until</p>
-              <p className="text-[13px] font-bold text-text-primary dark:text-night-text mt-0.5">{targetDate || 'Continuous'}</p>
-            </div>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Delivery Vow</h3>
           </div>
 
-          <div className="bg-white dark:bg-night-surface border border-border-light dark:border-night-border rounded-sacred p-16 shadow-sm flex items-center gap-10">
-            <div className="w-8 h-8 rounded-full bg-olive-mountain/10 flex items-center justify-center text-olive-mountain shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-              </svg>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex flex-col items-center flex-1">
+              <span className="text-[10px] font-bold text-destructive/70 uppercase">Quiet</span>
+              <span className="text-lg font-bold text-foreground">{quietHours.start}</span>
             </div>
-            <div>
-              <p className="text-[9px] uppercase font-bold tracking-widest text-text-secondary">Pace</p>
-              <p className="text-[13px] font-bold text-text-primary dark:text-night-text mt-0.5">{maxVersesPerUnit} Verses</p>
+            <div className="flex flex-col items-center px-4">
+              <div className="w-[1px] h-8 bg-border"></div>
+              <span className="text-[10px] my-1 text-muted-foreground">TO</span>
+              <div className="w-[1px] h-8 bg-border"></div>
+            </div>
+            <div className="flex flex-col items-center flex-1">
+              <span className="text-[10px] font-bold text-success/70 uppercase">Active</span>
+              <span className="text-lg font-bold text-foreground">{workingHours.start}</span>
             </div>
           </div>
+          <p className="text-[11px] text-center text-muted-foreground mt-4 italic">
+            Scripture will find you gently between {workingHours.start} and {workingHours.end}.
+          </p>
         </div>
 
-        <div className="bg-white dark:bg-night-surface border border-border-light dark:border-night-border rounded-sacred p-16 shadow-sm">
-          <div className="flex divide-x divide-border-light dark:divide-night-border">
-            <div className="flex-1 pr-12">
-              <div className="flex items-center gap-8 mb-3">
-                <div className="w-6 h-6 rounded-full bg-burgundy-curtain/10 flex items-center justify-center text-burgundy-curtain shrink-0">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                  </svg>
-                </div>
-                <p className="text-[10px] uppercase font-bold tracking-widest text-burgundy-curtain">Stillness</p>
-              </div>
-              <p className="text-[13px] font-bold text-text-primary dark:text-night-text">{quietHours.start} - {quietHours.end}</p>
+        <div className="py-6 border-t border-dashed border-border flex justify-center">
+          <div className="relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-background px-4">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-border">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+              </svg>
             </div>
-            <div className="flex-1 pl-12">
-              <div className="flex items-center gap-8 mb-3">
-                <div className="w-6 h-6 rounded-full bg-olive-mountain/10 flex items-center justify-center text-olive-mountain shrink-0">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                </div>
-                <p className="text-[10px] uppercase font-bold tracking-widest text-olive-mountain">Listening</p>
-              </div>
-              <p className="text-[13px] font-bold text-text-primary dark:text-night-text">{workingHours.start} - {workingHours.end}</p>
-            </div>
+            <p className="text-[12px] text-center text-primary font-medium tracking-tight mt-4">
+              "Speak, Lord, for your servant is listening."
+            </p>
           </div>
         </div>
       </div>
-
-      <p className="text-[10px] text-center text-text-secondary dark:text-night-text-muted italic px-32">
-        "Speak, Lord, for your servant is listening."
-      </p>
     </div>
   );
 };

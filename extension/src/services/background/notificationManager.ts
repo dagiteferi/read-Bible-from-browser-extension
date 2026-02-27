@@ -2,15 +2,20 @@ import { markUnitAsRead as apiMarkUnitAsRead } from '../../services/api/units';
 import { Unit } from '../../types/api';
 
 export const createNotification = (unit: Unit) => {
+  const title = `📖 Living Word: ${unit.book}`;
+  const message = `${unit.book} ${unit.chapter}:${unit.verse_start}${unit.verse_end && unit.verse_end !== unit.verse_start ? '-' + unit.verse_end : ''}`;
+
   chrome.notifications.create(unit.id, {
     type: 'basic',
     iconUrl: 'icon-128.png',
-    title: 'Your Daily Scripture',
-    message: `${unit.book} ${unit.chapter}:${unit.verse_start}${unit.verse_end ? '-' + unit.verse_end : ''}`,
+    title: title,
+    message: message,
     contextMessage: unit.text,
+    requireInteraction: true, // Keep it visible until the user interacts
+    priority: 2, // Max priority
     buttons: [
-      { title: 'Mark as Read' },
-      { title: 'Snooze' }
+      { title: '✅ Mark as Read' },
+      { title: '⏳ Snooze' }
     ]
   }, (notificationId) => {
     if (chrome.runtime.lastError) {

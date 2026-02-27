@@ -118,3 +118,16 @@ class PlanCalculateResponse(BaseModel):
     remaining_days: int
     adjusted_verses_per_unit: int | None = None
     next_delivery_timestamp: str | None = None
+
+
+class DailyHistoryItem(BaseModel):
+    date: date
+    verses_read: int
+
+class PlanProgress(BaseModel):
+    """Used for /v1/plan/{id}/progress."""
+    completed_units: int
+    total_units: int
+    completed_verses: int
+    total_verses: int
+    daily_history: list[DailyHistoryItem] = []

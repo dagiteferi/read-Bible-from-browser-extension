@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models import Plan, ReadingUnit
-from app.schemas.plan import PlanCreate, PlanUpdate, PlanResponse, PlanCalculateResponse, ReadingUnitInPlan
+from app.schemas.plan import PlanCreate, PlanUpdate, PlanResponse, PlanCalculateResponse, ReadingUnitInPlan, PlanProgress
 from app.schemas.unit import NextUnitResponse, ReadingUnitResponse
 from app.services.bible_service import BibleService
 from app.services.plan_service import PlanService
@@ -15,13 +15,23 @@ from app.services.scheduler_service import SchedulerService
 router = APIRouter()
 
 
+@router.get("/{id}/progress", response_model=PlanProgress)
+async def get_plan_progress(id: UUID, db: AsyncSession = Depends(get_db)):
+    """Return progress stats for the plan."""
+    svc = PlanService(db)
+    progress = await svc.get_plan_progress(id)
+    if not progress:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return progress
+
+
 @router.post("/create", response_model=dict)
 async def create_plan(payload: PlanCreate, db: AsyncSession = Depends(get_db)):
     """Create new plan. SRS: Precompute units; return plan ID."""
     svc = PlanService(db)
     try:
         plan = await svc.create_plan(payload.device_id, payload)
-        return {"id": str(plan.id), "message": "Plan created"}
+        return {"plan_id": str(plan.id), "message": "Plan created"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

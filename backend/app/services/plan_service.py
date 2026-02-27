@@ -339,3 +339,42 @@ class PlanService:
         plan.updated_at = datetime.utcnow()
         await self.db.flush()
         return plan
+
+    async def get_plan_progress(self, plan_id: uuid.UUID) -> dict | None:
+        """Calculate progress statistics for a plan."""
+        plan = await self.get_plan(plan_id)
+        if not plan:
+            return None
+        
+        r = await self.db.execute(
+            select(ReadingUnit)
+            .where(ReadingUnit.plan_id == plan_id)
+            .order_by(ReadingUnit.unit_index)
+        )
+        units = r.scalars().all()
+        
+        total_units = len(units)
+        completed_units = sum(1 for u in units if u.state == "read")
+        
+        total_verses = sum(u.verse_end - u.verse_start + 1 for u in units)
+        completed_verses = sum(u.verse_end - u.verse_start + 1 for u in units if u.state == "read")
+        
+        # Daily history: group by read_at date
+        history_map = {}
+        for u in units:
+            if u.state == "read" and u.read_at:
+                d = u.read_at.date()
+                history_map[d] = history_map.get(d, 0) + (u.verse_end - u.verse_start + 1)
+        
+        daily_history = [
+            {"date": d, "verses_read": count} 
+            for d, count in sorted(history_map.items())
+        ]
+        
+        return {
+            "completed_units": completed_units,
+            "total_units": total_units,
+            "completed_verses": completed_verses,
+            "total_verses": total_verses,
+            "daily_history": daily_history
+        }
