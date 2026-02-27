@@ -139,7 +139,6 @@ const CreatePlan = () => {
   const [workingHours, setWorkingHours] = useState<TimeRange>(settings.workingHours);
 
   /* Random-mode state */
-  const [themes, setThemes] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -153,17 +152,17 @@ const CreatePlan = () => {
     try {
       const planData: CreatePlanRequest = {
         books: selectedBooks,
-        target_date: targetDate,
+        target_date: targetDate || undefined,
         frequency: 'daily',
-        max_verses: maxVersesPerUnit,
-        boundaries: {
-          start_book: selectedBooks[0] || 'Genesis',
-          start_chapter: 1, start_verse: 1,
-          end_book: selectedBooks[selectedBooks.length - 1] || 'Revelation',
-          end_chapter: 1, end_verse: 1,
-        },
+        max_verses_per_unit: maxVersesPerUnit,
         quiet_hours: quietHours,
       };
+      if (selectedBooks.length > 0) {
+        planData.boundaries = {
+          chapter_start: 1,
+          verse_start: 1,
+        };
+      }
       const newPlan = await createPlan(planData);
       if (newPlan) {
         setSuccess('እቅድዎ በተሳካ ሁኔታ ተፈጥሯል — Plan created successfully!');
@@ -179,10 +178,10 @@ const CreatePlan = () => {
     try {
       // For random mode we create a plan with no specific books (backend picks)
       const planData: CreatePlanRequest = {
-        books: [],
-        target_date: '',
+        books: ['ኦሪት ዘፍጥረት'], // Backend requires at least one book
+        target_date: undefined,
         frequency: 'daily',
-        max_verses: 5,
+        max_verses_per_unit: maxVersesPerUnit,
         quiet_hours: settings.quietHours,
       };
       const newPlan = await createPlan(planData);
@@ -195,7 +194,7 @@ const CreatePlan = () => {
     } finally { setLoading(false); }
   };
 
-  
+
   if (mode === null) {
     return (
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>

@@ -35,7 +35,7 @@ const AlertIcon = () => (
 );
 
 export const ActivePlanCard: React.FC<ActivePlanCardProps> = ({ onNavigate }) => {
-  const { currentPlan, progress, loading, error } = usePlanContext();
+  const { currentPlan, progress, loading, error, setActivePlan } = usePlanContext();
   const { settings } = useSettingsContext();
 
   if (loading) {
@@ -112,7 +112,21 @@ export const ActivePlanCard: React.FC<ActivePlanCardProps> = ({ onNavigate }) =>
       }} />
 
       <div style={{ position: 'relative' }}>
-        <p className="section-header" style={{ marginBottom: 4 }}>Active Plan</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+          <p className="section-header" style={{ marginBottom: 0 }}>Active Plan</p>
+          <button
+            className="btn btn-ghost"
+            style={{ fontSize: 11, padding: '4px 8px', height: 'auto' }}
+            onClick={() => {
+              if (window.confirm('Are you sure you want to stop this plan and create a new one?')) {
+                setActivePlan(null);
+                onNavigate?.('createPlan');
+              }
+            }}
+          >
+            Switch Plan
+          </button>
+        </div>
 
         <p className="amharic-text" style={{
           fontSize: 17, fontWeight: 700, color: 'var(--accent)',

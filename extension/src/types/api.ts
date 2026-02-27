@@ -6,18 +6,16 @@ export interface BookMetadata {
 
 export interface CreatePlanRequest {
   books: string[];
-  target_date: string;
-  frequency: 'daily' | 'weekly';
-  max_verses: number;
-  boundaries: {
-    start_book: string;
-    start_chapter: number;
-    start_verse: number;
-    end_book: string;
-    end_chapter: number;
-    end_verse: number;
+  target_date?: string;
+  frequency?: 'daily' | 'weekly';
+  max_verses_per_unit?: number;
+  boundaries?: {
+    chapter_start: number;
+    verse_start: number;
+    chapter_end?: number;
+    verse_end?: number;
   };
-  quiet_hours: { start: string; end: string };
+  quiet_hours?: { start: string; end: string };
 }
 
 export interface CreatePlanResponse {
