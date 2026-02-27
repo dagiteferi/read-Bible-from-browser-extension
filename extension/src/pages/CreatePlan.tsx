@@ -138,13 +138,14 @@ const CreatePlan = () => {
   const [quietHours, setQuietHours] = useState<TimeRange>(settings.quietHours);
   const [workingHours, setWorkingHours] = useState<TimeRange>(settings.workingHours);
 
-  /* Random-mode state */
+
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(false);
 
-  /* ── handlers ── */
+
   const handleConfirmMode = () => setMode(pendingMode);
 
   const handleCreatePlannedPlan = async () => {
@@ -165,8 +166,8 @@ const CreatePlan = () => {
       }
       const newPlan = await createPlan(planData);
       if (newPlan) {
-        setSuccess('እቅድዎ በተሳካ ሁኔታ ተፈጥሯል — Plan created successfully!');
-        setMode(null); setStep(1); setSelectedBooks([]); setTargetDate(''); setMaxVersesPerUnit(10);
+        setIsVerified(true);
+        setSelectedBooks([]); setTargetDate(''); setMaxVersesPerUnit(10);
       } else { setError('Failed to create plan. Please try again.'); }
     } catch (err: any) {
       setError(err.message || 'Failed to create plan.');
@@ -186,8 +187,7 @@ const CreatePlan = () => {
       };
       const newPlan = await createPlan(planData);
       if (newPlan) {
-        setSuccess('Random verses will be delivered daily!');
-        setMode(null);
+        setIsVerified(true);
       } else { setError('Failed to create plan. Please try again.'); }
     } catch (err: any) {
       setError(err.message || 'Failed to create plan.');
@@ -377,6 +377,47 @@ const CreatePlan = () => {
       default: return null;
     }
   };
+
+  if (isVerified) {
+    return (
+      <div className="animate-fade-in flex flex-col items-center justify-center min-h-[500px] p-8 text-center space-y-6">
+        <div className="w-20 h-20 bg-success/20 text-success rounded-full flex items-center justify-center mb-4">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+
+        <h1 className="text-2xl font-bold text-primary">Vow Verified</h1>
+        <p className="text-muted-foreground italic">"Your word is a lamp to my feet and a light to my path."</p>
+
+        <div className="w-full bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
+          <div className="flex justify-between items-center border-b border-border/50 pb-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Version</span>
+            <span className="text-sm font-bold text-foreground">1.0.0</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Heartbeat Gap</span>
+            <span className="text-sm font-bold text-foreground">15 Minutes</span>
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground leading-relaxed px-4">
+          The system will now quietly watch for the right moment to deliver your scripture based on your sacred rhythm.
+        </p>
+
+        <button
+          className="btn btn-primary btn-full mt-8"
+          onClick={() => {
+            setIsVerified(false);
+            setMode(null);
+            setStep(1);
+          }}
+        >
+          Return Home
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
