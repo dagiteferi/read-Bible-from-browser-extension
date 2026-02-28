@@ -5,7 +5,6 @@ import { UserSettings, TimeRange } from '../types/storage';
 const DEFAULT_SETTINGS: UserSettings = {
   quietHours: { start: '22:00', end: '06:00' },
   workingHours: { start: '08:00', end: '17:00' },
-  // Add other default settings here
 };
 
 export const useSettings = () => {

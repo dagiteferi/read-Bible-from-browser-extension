@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { getPlanProgress } from '../services/api/plans';
 import { markUnitAsRead as apiMarkUnitAsRead } from '../services/api/units';
 import { Plan, Progress } from '../types/plan';
-import { useOfflineQueue } from './useOfflineQueue'; // Import the hook
+import { useOfflineQueue } from './useOfflineQueue';
 
 export const usePlan = (planId: string | null) => {
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const { queueOfflineAction, isOnline } = useOfflineQueue(); // Use the offline queue hook
+  const { queueOfflineAction, isOnline } = useOfflineQueue();
 
   const refreshPlan = async () => {
     if (!planId) return;
@@ -37,7 +37,7 @@ export const usePlan = (planId: string | null) => {
     }
     try {
       await apiMarkUnitAsRead(unitId);
-      await refreshPlan(); // Refresh progress after marking unit as read
+      await refreshPlan();
     } catch (err) {
       setError(err as Error);
     } finally {
