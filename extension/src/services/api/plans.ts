@@ -6,7 +6,7 @@ export const createPlan = async (planData: CreatePlanRequest): Promise<CreatePla
   return response.data;
 };
 
-export const getNextUnit = async (planId: string): Promise<any> => { // TODO: Define Unit type
+export const getNextUnit = async (planId: string): Promise<any> => {
   const response = await apiClient.get(`/plan/${planId}/next-unit`);
   return response.data;
 };

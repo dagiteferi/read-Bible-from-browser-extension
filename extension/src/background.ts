@@ -14,15 +14,13 @@ console.log('Service Worker Loaded');
 const ACTIVE_PLAN_KEY = 'activePlan';
 const USER_SETTINGS_KEY = 'userSettings';
 
-// Initialize on install/startup
 chrome.runtime.onInstalled.addListener(async () => {
   console.log('Extension installed or updated.');
-  await getOrCreateDeviceId(); // Ensure device ID exists
+  await getOrCreateDeviceId();
   setupAlarms();
-  await syncOfflineActions(); // Attempt to sync any pending offline actions
+  await syncOfflineActions();
 });
 
-// Alarm handler
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== 'check-delivery') return;
 
@@ -57,32 +55,24 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }
 });
 
-// Notification click handlers
 chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIndex) => {
   console.log('Notification button clicked:', notificationId, buttonIndex);
-  if (buttonIndex === 0) { // Mark as Read
+  if (buttonIndex === 0) {
     await markUnitAsRead(notificationId);
-    // Optionally, refresh plan progress in popup if it's open
-  } else if (buttonIndex === 1) { // Snooze
+  } else if (buttonIndex === 1) {
     chrome.notifications.clear(notificationId);
-    scheduleSnooze(); // Schedule a new alarm for snooze
+    scheduleSnooze();
   }
 });
 
 chrome.notifications.onClicked.addListener((notificationId) => {
   console.log('Notification clicked:', notificationId);
-  // Open full verse view
   chrome.tabs.create({ url: `fullverse.html?id=${notificationId}` });
 });
 
-// Listen for messages from other parts of the extension (e.g., popup)
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'refreshPlan') {
-    // Trigger a refresh of the plan data in the background
-    // This might involve re-fetching progress and updating local storage
     console.log('Received refreshPlan message from popup.');
-    // You might want to call refreshPlan from usePlanContext here, but that's in the UI thread.
-    // For background, you'd re-fetch and update storage directly.
     sendResponse({ status: 'Plan refresh initiated in background.' });
   }
 });

@@ -27,7 +27,6 @@ export const RhythmSettings: React.FC<RhythmSettingsProps> = ({
       </div>
 
       <div className="space-y-32 relative before:absolute before:left-0 before:top-8 before:bottom-8 before:w-1 before:bg-border-light dark:before:bg-night-border ml-4 pl-24">
-        {/* Stillness */}
         <div className="space-y-12 relative">
           <div className="absolute -left-[29px] top-4 w-9 h-9 border-2 border-burgundy-curtain bg-white dark:bg-night-bg rounded-full shadow-sm" />
           <h3 className="text-xs font-bold uppercase tracking-widest text-burgundy-curtain">
@@ -50,7 +49,6 @@ export const RhythmSettings: React.FC<RhythmSettingsProps> = ({
           </p>
         </div>
 
-        {/* Listening */}
         <div className="space-y-12 relative">
           <div className="absolute -left-[29px] top-4 w-9 h-9 border-2 border-olive-mountain bg-white dark:bg-night-bg rounded-full shadow-sm" />
           <h3 className="text-xs font-bold uppercase tracking-widest text-olive-mountain">

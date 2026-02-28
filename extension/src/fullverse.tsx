@@ -32,7 +32,7 @@ const FullVersePage = () => {
       }
 
       try {
-        const response = await apiClient.get(`/unit/${verseId}`); // Placeholder API call
+        const response = await apiClient.get(`/unit/${verseId}`);
         setVerseDetails(response.data);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch verse details.');
@@ -45,7 +45,7 @@ const FullVersePage = () => {
   }, []);
 
   return (
-    <ErrorBoundary> {/* Wrap the application with ErrorBoundary */}
+    <ErrorBoundary>
       <DeviceProvider>
         <SettingsProvider>
           <div className="min-h-screen parchment flex flex-col items-center justify-center p-24 animate-fade-in">

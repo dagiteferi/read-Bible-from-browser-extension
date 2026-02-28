@@ -36,7 +36,6 @@ export const DataManagement: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {/* Data actions */}
       <div className="card">
         <p className="section-header">Data</p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -51,7 +50,6 @@ export const DataManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Danger zone */}
       <div className="card" style={{ border: '1px solid hsl(353,42%,32%,0.25)' }}>
         <p className="section-header" style={{ color: 'var(--destructive)' }}>Danger Zone</p>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

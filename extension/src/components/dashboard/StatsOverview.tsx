@@ -59,7 +59,6 @@ export const StatsOverview: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <p className="section-header">Milestones</p>
 
-      {/* Stat cards row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {stats.map((stat) => (
           <div key={stat.label} className="card-sm" style={{ textAlign: 'center' }}>
@@ -81,7 +80,6 @@ export const StatsOverview: React.FC = () => {
         ))}
       </div>
 
-      {/* Completion badge */}
       {completionPct > 0 && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8,

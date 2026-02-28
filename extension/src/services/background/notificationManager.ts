@@ -25,11 +25,9 @@ export const markUnitAsRead = async (unitId: string) => {
   try {
     await apiMarkUnitAsRead(unitId);
     console.log(`Unit ${unitId} marked as read via API.`);
-    chrome.notifications.clear(unitId); // Clear the notification after marking as read
-    // Optionally, send a message to the popup to refresh its state
+    chrome.notifications.clear(unitId);
     chrome.runtime.sendMessage({ action: 'refreshPlan' });
   } catch (error) {
     console.error(`Failed to mark unit ${unitId} as read:`, error);
-    // Handle error, e.g., show a persistent notification or log
   }
 };

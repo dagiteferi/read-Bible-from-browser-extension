@@ -76,7 +76,6 @@ const ModeCard = ({ selected, onClick, icon, title, description, badge, badgeCol
       outline: 'none',
     }}
   >
-    {/* Selected checkmark */}
     {selected && (
       <div style={{
         position: 'absolute', top: 12, right: 12,
@@ -90,7 +89,6 @@ const ModeCard = ({ selected, onClick, icon, title, description, badge, badgeCol
     )}
 
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-      {/* Icon box */}
       <div style={{
         width: 52, height: 52, borderRadius: 14, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -126,11 +124,9 @@ const CreatePlan = () => {
   const { createPlan } = usePlanContext();
   const { settings } = useSettingsContext();
 
-  /* mode: null = mode selection screen, 'random' | 'planned' = in wizard */
   const [mode, setMode] = useState<PlanMode>(null);
   const [pendingMode, setPendingMode] = useState<'random' | 'planned'>('planned');
 
-  /* Planned-mode wizard state */
   const [step, setStep] = useState(1);
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [targetDate, setTargetDate] = useState('');
@@ -138,14 +134,12 @@ const CreatePlan = () => {
   const [quietHours, setQuietHours] = useState<TimeRange>(settings.quietHours);
   const [workingHours, setWorkingHours] = useState<TimeRange>(settings.workingHours);
 
-  /* Random-mode state */
   const [themes, setThemes] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  /* ── handlers ── */
   const handleConfirmMode = () => setMode(pendingMode);
 
   const handleCreatePlannedPlan = async () => {
@@ -177,7 +171,6 @@ const CreatePlan = () => {
   const handleCreateRandomPlan = async () => {
     setLoading(true); setError(null); setSuccess(null);
     try {
-      // For random mode we create a plan with no specific books (backend picks)
       const planData: CreatePlanRequest = {
         books: [],
         target_date: '',
@@ -199,7 +192,6 @@ const CreatePlan = () => {
   if (mode === null) {
     return (
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-        {/* Header */}
         <div style={{
           padding: '14px 16px 12px',
           borderBottom: '1px solid var(--border)',
@@ -213,7 +205,6 @@ const CreatePlan = () => {
 
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
 
-          {/* Success / Error messages */}
           {success && (
             <div className="alert alert-success">
               <span>✓</span> <span>{success}</span>
@@ -225,7 +216,6 @@ const CreatePlan = () => {
             </div>
           )}
 
-          {/* Mode cards */}
           <ModeCard
             selected={pendingMode === 'random'}
             onClick={() => setPendingMode('random')}
@@ -246,7 +236,6 @@ const CreatePlan = () => {
             description="Choose your books, set a goal date, and read through Scripture at your own pace with daily deliveries."
           />
 
-          {/* Feature comparison */}
           <div style={{
             background: 'var(--secondary)', borderRadius: 12,
             padding: '12px 14px', marginTop: 4,
@@ -283,7 +272,6 @@ const CreatePlan = () => {
             </div>
           </div>
 
-          {/* Confirm button */}
           <button
             className="btn btn-accent btn-full btn-lg"
             style={{ marginTop: 'auto' }}
@@ -299,9 +287,6 @@ const CreatePlan = () => {
     );
   }
 
-  /* ═══════════════════════════════════════
-     RENDER — RANDOM MODE (minimal config)
-  ═══════════════════════════════════════ */
   if (mode === 'random') {
     return (
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
@@ -318,7 +303,6 @@ const CreatePlan = () => {
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16, flex: 1 }}>
           {error && <div className="alert alert-error"><span>!</span><span>{error}</span></div>}
 
-          {/* Verses per day */}
           <div className="card">
             <p className="section-header">Daily Verses</p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -336,7 +320,6 @@ const CreatePlan = () => {
             </div>
           </div>
 
-          {/* Quiet hours */}
           <div className="card">
             <p className="section-header">Quiet Hours</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -363,9 +346,6 @@ const CreatePlan = () => {
     );
   }
 
-  /* ═══════════════════════════════════════
-     RENDER — PLANNED WIZARD
-  ═══════════════════════════════════════ */
   const totalSteps = PLANNED_STEPS.length;
   const canProceed = step === 1 ? selectedBooks.length > 0 : true;
 
@@ -381,7 +361,6 @@ const CreatePlan = () => {
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      {/* Header with back + step label */}
       <div style={{
         padding: '10px 16px', borderBottom: '1px solid var(--border)',
         background: 'var(--card)', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0,
@@ -399,7 +378,6 @@ const CreatePlan = () => {
         </div>
       </div>
 
-      {/* Step indicator bar */}
       <div style={{
         display: 'flex', gap: 4, padding: '10px 16px',
         background: 'var(--card)', borderBottom: '1px solid var(--border)',
@@ -417,18 +395,15 @@ const CreatePlan = () => {
         ))}
       </div>
 
-      {/* Alert messages */}
       <div style={{ padding: '0 16px' }}>
         {error && <div className="alert alert-error" style={{ marginTop: 12 }}><span>!</span><span>{error}</span></div>}
         {success && <div className="alert alert-success" style={{ marginTop: 12 }}><span>✓</span><span>{success}</span></div>}
       </div>
 
-      {/* Step content */}
       <div style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
         {renderStep()}
       </div>
 
-      {/* Navigation footer */}
       <div style={{
         padding: '12px 16px', borderTop: '1px solid var(--border)',
         background: 'var(--card)', display: 'flex', justifyContent: 'flex-end', flexShrink: 0,

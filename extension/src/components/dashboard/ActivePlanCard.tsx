@@ -58,14 +58,12 @@ export const ActivePlanCard: React.FC<ActivePlanCardProps> = ({ onNavigate }) =>
     );
   }
 
-  /* ─── No active plan — empty state ─── */
   if (!currentPlan) {
     return (
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         textAlign: 'center', padding: '36px 24px 28px', gap: 16,
       }}>
-        {/* Glowing book icon */}
         <div
           className="icon-box icon-box-xl icon-box-gradient animate-candle-glow"
           style={{ marginBottom: 4 }}
@@ -82,7 +80,6 @@ export const ActivePlanCard: React.FC<ActivePlanCardProps> = ({ onNavigate }) =>
           </p>
         </div>
 
-        {/* CTA — navigates to Plan tab */}
         <button
           className="btn btn-primary"
           style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 4 }}
@@ -95,15 +92,13 @@ export const ActivePlanCard: React.FC<ActivePlanCardProps> = ({ onNavigate }) =>
     );
   }
 
-  /* ─── Active plan ─── */
   const completionPct = progress && progress.total_units > 0
     ? (progress.completed_units / progress.total_units) * 100 : 0;
 
-  const nextNotification = getNextNotificationTime(new Date(), settings.workingHours, settings.quietHours);
+  const nextNotification = getNextNotificationTime(.new Date(), settings.workingHours, settings.quietHours);
 
   return (
     <div className="card" style={{ position: 'relative', overflow: 'hidden' }}>
-      {/* Subtle background blob */}
       <div style={{
         position: 'absolute', top: -24, right: -24,
         width: 110, height: 110, borderRadius: '50%',
@@ -121,7 +116,6 @@ export const ActivePlanCard: React.FC<ActivePlanCardProps> = ({ onNavigate }) =>
           {currentPlan.books.join('፣ ')}
         </p>
 
-        {/* Progress bar */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
             <span style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Progress</span>
@@ -134,7 +128,6 @@ export const ActivePlanCard: React.FC<ActivePlanCardProps> = ({ onNavigate }) =>
           </div>
         </div>
 
-        {/* Footer meta */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--accent)' }}>
             <ClockIcon />
