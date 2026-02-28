@@ -42,7 +42,12 @@ class PlanCreate(BaseModel):
         None, 
         description="Time periods when notifications should be paused"
     )
+    working_hours: QuietHoursSchema | None = Field(
+        None,
+        description="Time periods when notifications are allowed"
+    )
     max_verses_per_unit: int = Field(3, ge=1, le=50, description="Maximum verses delivered in a single notification")
+    time_lap_minutes: int = Field(60, ge=1, le=1440, description="Interval between notifications in minutes")
 
     model_config = {
         "json_schema_extra": {
@@ -52,9 +57,14 @@ class PlanCreate(BaseModel):
                 "target_date": "2026-06-30",
                 "frequency": "daily",
                 "max_verses_per_unit": 5,
+                "time_lap_minutes": 60,
                 "quiet_hours": {
                     "start": "22:00",
                     "end": "06:00"
+                },
+                "working_hours": {
+                    "start": "08:00",
+                    "end": "17:00"
                 }
             }
         }
@@ -69,7 +79,9 @@ class PlanUpdate(BaseModel):
     target_date: date | None = None
     frequency: str | None = None
     quiet_hours: QuietHoursSchema | None = None
+    working_hours: QuietHoursSchema | None = None
     max_verses_per_unit: int | None = None
+    time_lap_minutes: int | None = None
     state: str | None = Field(None, pattern="^(active|paused|completed)$")
 
 
@@ -85,8 +97,7 @@ class ReadingUnitInPlan(BaseModel):
     chapter: int
     verse_start: int
     verse_end: int
-    verse_range: VerseRangeSchema
-    index: int
+    unit_index: int
     state: str  # pending, delivered, read
 
     class Config:
@@ -103,7 +114,9 @@ class PlanResponse(BaseModel):
     target_date: date | None
     frequency: str | None
     quiet_hours: QuietHoursSchema | None
+    working_hours: QuietHoursSchema | None
     max_verses_per_unit: int
+    time_lap_minutes: int
     state: str
     units: list[ReadingUnitInPlan] = []
 
@@ -118,3 +131,16 @@ class PlanCalculateResponse(BaseModel):
     remaining_days: int
     adjusted_verses_per_unit: int | None = None
     next_delivery_timestamp: str | None = None
+
+
+class DailyHistoryItem(BaseModel):
+    date: date
+    verses_read: int
+
+class PlanProgress(BaseModel):
+    """Used for /v1/plan/{id}/progress."""
+    completed_units: int
+    total_units: int
+    completed_verses: int
+    total_verses: int
+    daily_history: list[DailyHistoryItem] = []

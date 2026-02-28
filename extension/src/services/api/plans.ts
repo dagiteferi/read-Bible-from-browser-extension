@@ -1,8 +1,10 @@
 import apiClient from './client';
 import { CreatePlanRequest, CreatePlanResponse, PlanProgress } from '../../types/api';
+import { getOrCreateDeviceId } from '../../utils/deviceId';
 
 export const createPlan = async (planData: CreatePlanRequest): Promise<CreatePlanResponse> => {
-  const response = await apiClient.post('/plan/create', planData);
+  const deviceId = await getOrCreateDeviceId();
+  const response = await apiClient.post('/plan/create', { ...planData, device_id: deviceId });
   return response.data;
 };
 

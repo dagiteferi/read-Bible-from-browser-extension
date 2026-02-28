@@ -1,7 +1,12 @@
-import { useState, useEffect } from 'react';
-import { getBooks, getBookMetadata } from '../../services/api/bible';
-import { AMHARIC_BOOK_NAMES, BOOK_GROUPS } from '../../constants/books';
-import { BookMetadata } from '../../types/api';
+import React, { useState, useEffect } from 'react';
+import { getBooks } from '../../services/api/bible';
+
+const BookIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+  </svg>
+);
 
 interface BookSelectorProps {
   selectedBooks: string[];
@@ -10,7 +15,6 @@ interface BookSelectorProps {
 
 export const BookSelector: React.FC<BookSelectorProps> = ({ selectedBooks, onBookSelect }) => {
   const [availableBooks, setAvailableBooks] = useState<string[]>([]);
-  const [bookMetadata, setBookMetadata] = useState<Record<string, BookMetadata>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,14 +23,6 @@ export const BookSelector: React.FC<BookSelectorProps> = ({ selectedBooks, onBoo
       try {
         const books = await getBooks();
         setAvailableBooks(books);
-
-        const metadataPromises = books.map(book => getBookMetadata(book));
-        const metadataResults = await Promise.all(metadataPromises);
-        const metadataMap = metadataResults.reduce((acc, meta) => {
-          acc[meta.book] = meta;
-          return acc;
-        }, {} as Record<string, BookMetadata>);
-        setBookMetadata(metadataMap);
       } catch (err) {
         setError('Failed to load Bible books.');
         console.error(err);
@@ -44,53 +40,67 @@ export const BookSelector: React.FC<BookSelectorProps> = ({ selectedBooks, onBoo
     onBookSelect(newSelection);
   };
 
-  if (loading) return <div className="loading-pulse h-[400px] w-full" />;
-  if (error) return <div className="error-message">{error}</div>;
+  if (loading) {
+    return (
+      <div className="space-y-4 animate-pulse">
+        <div className="h-8 bg-muted rounded-md w-1/3"></div>
+        <div className="grid grid-cols-2 gap-3">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="h-12 bg-muted rounded-xl"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center bg-destructive/5 rounded-xl border border-destructive/20 text-destructive">
+        <p className="font-semibold mb-2">Something went wrong</p>
+        <p className="text-sm opacity-80">{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-24 animate-fade-in">
-      <div className="space-y-8">
-        <h2 className="text-18 font-medium text-indigo-prayer dark:text-night-text uppercase tracking-widest">
-          The Word
-        </h2>
-        <p className="text-text-secondary dark:text-night-text-muted text-sm italic">
-          Select the scrolls you wish to meditate upon.
-        </p>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-primary mb-1">Select Scripture</h2>
+          <p className="text-sm text-muted-foreground italic">"Thy word is a lamp unto my feet..."</p>
+        </div>
+        <button
+          onClick={() => onBookSelect(selectedBooks.length === availableBooks.length ? [] : [...availableBooks])}
+          className="text-[11px] font-bold uppercase tracking-wider text-accent bg-accent/10 px-3 py-1.5 rounded-full hover:bg-accent/20 transition-all"
+        >
+          {selectedBooks.length === availableBooks.length ? 'Deselect All' : 'Select All'}
+        </button>
       </div>
 
-      <div className="h-[400px] overflow-y-auto pr-8 space-y-24 custom-scrollbar">
-        {Object.entries(BOOK_GROUPS).map(([groupName, booksInGroup]) => (
-          <div key={groupName} className="space-y-12">
-            <h3 className="text-12 font-bold text-amber-spirit dark:text-night-amber uppercase tracking-wider border-b border-border-light dark:border-night-border pb-4">
-              {groupName}
-            </h3>
-            <div className="grid grid-cols-2 gap-8">
-              {booksInGroup.filter(book => availableBooks.includes(book)).map(book => {
-                const isSelected = selectedBooks.includes(book);
-                return (
-                  <button
-                    key={book}
-                    onClick={() => handleToggleBook(book)}
-                    className={`flex flex-col p-12 rounded-sacred text-left transition-all duration-200 group
-                      ${isSelected
-                        ? 'bg-indigo-prayer text-white shadow-sacred ring-2 ring-amber-spirit ring-offset-1 dark:ring-offset-night-bg'
-                        : 'bg-white dark:bg-night-surface border border-border-light dark:border-night-border hover:border-amber-spirit'
-                      }`}
-                  >
-                    <span className={`font-ethiopic text-16 ${isSelected ? 'text-white' : 'text-text-primary dark:text-night-text group-hover:text-amber-spirit'}`}>
-                      {(AMHARIC_BOOK_NAMES as any)[book] || book}
-                    </span>
-                    {bookMetadata[book] && (
-                      <span className={`text-[10px] uppercase font-bold tracking-tighter opacity-70 ${isSelected ? 'text-cream' : 'text-text-secondary'}`}>
-                        {bookMetadata[book].chapter_count} chapters
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+      <div className="max-h-[380px] overflow-y-auto pr-2 custom-scrollbar pb-2">
+        <div className="grid grid-cols-2 gap-3">
+          {availableBooks.map(book => {
+            const isSelected = selectedBooks.includes(book);
+            return (
+              <button
+                key={book}
+                onClick={() => handleToggleBook(book)}
+                className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 text-left
+                  ${isSelected
+                    ? 'bg-primary text-primary-foreground border-primary shadow-md scale-[1.02]'
+                    : 'bg-card border-border hover:border-primary/50 text-foreground'
+                  }`}
+              >
+                <div className={`shrink-0 p-1.5 rounded-lg ${isSelected ? 'bg-white/20' : 'bg-muted'}`}>
+                  <BookIcon />
+                </div>
+                <span className="font-ethiopic text-[13px] font-medium truncate" data-amharic="true">
+                  {book}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

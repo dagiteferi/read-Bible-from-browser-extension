@@ -135,17 +135,18 @@ const CreatePlan = () => {
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [targetDate, setTargetDate] = useState('');
   const [maxVersesPerUnit, setMaxVersesPerUnit] = useState(10);
+  const [timeLapMinutes, setTimeLapMinutes] = useState(60);
   const [quietHours, setQuietHours] = useState<TimeRange>(settings.quietHours);
   const [workingHours, setWorkingHours] = useState<TimeRange>(settings.workingHours);
 
-  /* Random-mode state */
-  const [themes, setThemes] = useState<string[]>([]);
+
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(false);
 
-  /* ── handlers ── */
+
   const handleConfirmMode = () => setMode(pendingMode);
 
   const handleCreatePlannedPlan = async () => {
@@ -153,21 +154,23 @@ const CreatePlan = () => {
     try {
       const planData: CreatePlanRequest = {
         books: selectedBooks,
-        target_date: targetDate,
+        target_date: targetDate || undefined,
         frequency: 'daily',
-        max_verses: maxVersesPerUnit,
-        boundaries: {
-          start_book: selectedBooks[0] || 'Genesis',
-          start_chapter: 1, start_verse: 1,
-          end_book: selectedBooks[selectedBooks.length - 1] || 'Revelation',
-          end_chapter: 1, end_verse: 1,
-        },
+        max_verses_per_unit: maxVersesPerUnit,
+        time_lap_minutes: timeLapMinutes,
         quiet_hours: quietHours,
+        working_hours: workingHours,
       };
+      if (selectedBooks.length > 0) {
+        planData.boundaries = {
+          chapter_start: 1,
+          verse_start: 1,
+        };
+      }
       const newPlan = await createPlan(planData);
       if (newPlan) {
-        setSuccess('እቅድዎ በተሳካ ሁኔታ ተፈጥሯል — Plan created successfully!');
-        setMode(null); setStep(1); setSelectedBooks([]); setTargetDate(''); setMaxVersesPerUnit(10);
+        setIsVerified(true);
+        setSelectedBooks([]); setTargetDate(''); setMaxVersesPerUnit(10); setTimeLapMinutes(60);
       } else { setError('Failed to create plan. Please try again.'); }
     } catch (err: any) {
       setError(err.message || 'Failed to create plan.');
@@ -179,23 +182,24 @@ const CreatePlan = () => {
     try {
       // For random mode we create a plan with no specific books (backend picks)
       const planData: CreatePlanRequest = {
-        books: [],
-        target_date: '',
+        books: ['ኦሪት ዘፍጥረት'], // Backend requires at least one book
+        target_date: undefined,
         frequency: 'daily',
-        max_verses: 5,
+        max_verses_per_unit: maxVersesPerUnit,
+        time_lap_minutes: timeLapMinutes,
         quiet_hours: settings.quietHours,
+        working_hours: settings.workingHours,
       };
       const newPlan = await createPlan(planData);
       if (newPlan) {
-        setSuccess('Random verses will be delivered daily!');
-        setMode(null);
+        setIsVerified(true);
       } else { setError('Failed to create plan. Please try again.'); }
     } catch (err: any) {
       setError(err.message || 'Failed to create plan.');
     } finally { setLoading(false); }
   };
 
-  
+
   if (mode === null) {
     return (
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
@@ -372,12 +376,62 @@ const CreatePlan = () => {
   const renderStep = () => {
     switch (step) {
       case 1: return <BookSelector selectedBooks={selectedBooks} onBookSelect={setSelectedBooks} />;
-      case 2: return <GoalSelector targetDate={targetDate} onTargetDateChange={setTargetDate} maxVersesPerUnit={maxVersesPerUnit} onMaxVersesChange={setMaxVersesPerUnit} />;
+      case 2: return (
+        <GoalSelector
+          targetDate={targetDate}
+          onTargetDateChange={setTargetDate}
+          maxVersesPerUnit={maxVersesPerUnit}
+          onMaxVersesChange={setMaxVersesPerUnit}
+          timeLapMinutes={timeLapMinutes}
+          onTimeLapMinutesChange={setTimeLapMinutes}
+        />
+      );
       case 3: return <RhythmSettings quietHours={quietHours} onQuietHoursChange={setQuietHours} workingHours={workingHours} onWorkingHoursChange={setWorkingHours} />;
-      case 4: return <PlanReview selectedBooks={selectedBooks} targetDate={targetDate} maxVersesPerUnit={maxVersesPerUnit} quietHours={quietHours} workingHours={workingHours} />;
+      case 4: return <PlanReview selectedBooks={selectedBooks} targetDate={targetDate} maxVersesPerUnit={maxVersesPerUnit} timeLapMinutes={timeLapMinutes} quietHours={quietHours} workingHours={workingHours} />;
       default: return null;
     }
   };
+
+  if (isVerified) {
+    return (
+      <div className="animate-fade-in flex flex-col items-center justify-center min-h-[500px] p-8 text-center space-y-6">
+        <div className="w-20 h-20 bg-success/20 text-success rounded-full flex items-center justify-center mb-4">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+
+        <h1 className="text-2xl font-bold text-primary">Vow Verified</h1>
+        <p className="text-muted-foreground italic">"Your word is a lamp to my feet and a light to my path."</p>
+
+        <div className="w-full bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
+          <div className="flex justify-between items-center border-b border-border/50 pb-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Version</span>
+            <span className="text-sm font-bold text-foreground">1.0.0</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Heartbeat Gap</span>
+            <span className="text-sm font-bold text-foreground">15 Minutes</span>
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground leading-relaxed px-4">
+          The system will now quietly watch for the right moment to deliver your scripture based on your sacred rhythm.
+        </p>
+
+        <button
+          className="btn btn-primary btn-full mt-8"
+          onClick={() => {
+            setIsVerified(false);
+            setMode(null);
+            setStep(1);
+          }}
+        >
+          Return Home
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>

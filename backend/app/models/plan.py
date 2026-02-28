@@ -29,7 +29,9 @@ class Plan(Base):
         nullable=True,
     )  # CHECK in migration
     quiet_hours: Mapped[dict | None] = mapped_column(JSONB, nullable=True)  # {"start":"22:00","end":"06:00"}
+    working_hours: Mapped[dict | None] = mapped_column(JSONB, nullable=True)  # {"start":"08:00","end":"17:00"}
     max_verses_per_unit: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
+    time_lap_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=60)
     state: Mapped[str] = mapped_column(Text, nullable=False, default="active")  # active, paused, completed
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

@@ -70,10 +70,15 @@ class PlanService:
 
         # SDS: target_units, base_verses_per_unit, verses_per_unit
         today = date.today()
-        target_date = payload.target_date or today
-        days_remaining = max(0, (target_date - today).days) or 1
+        target_date_val = payload.target_date or today
+        days_remaining = max(0, (target_date_val - today).days) or 1
         frequency = payload.frequency or "daily"
-        target_units = days_remaining * (1 if frequency == "daily" else 7)
+        
+        from app.utils.time_helpers import calculate_active_minutes
+        active_mins_per_day = calculate_active_minutes(payload.working_hours.model_dump() if payload.working_hours else None)
+        deliveries_per_day = max(1, active_mins_per_day // payload.time_lap_minutes)
+        
+        target_units = days_remaining * (deliveries_per_day if frequency == "daily" else 7 * deliveries_per_day)
         target_units = max(1, target_units)
         base_verses_per_unit = max(1, total_verses // target_units)
         verses_per_unit = min(base_verses_per_unit, payload.max_verses_per_unit)
@@ -86,6 +91,8 @@ class PlanService:
             frequency=payload.frequency,
             quiet_hours=payload.quiet_hours.model_dump() if payload.quiet_hours else None,
             max_verses_per_unit=payload.max_verses_per_unit,
+            time_lap_minutes=payload.time_lap_minutes,
+            working_hours=payload.working_hours.model_dump() if payload.working_hours else None,
             state="active",
         )
         self.db.add(plan)
@@ -187,6 +194,10 @@ class PlanService:
             plan.quiet_hours = payload.quiet_hours.model_dump()
         if payload.max_verses_per_unit is not None:
             plan.max_verses_per_unit = payload.max_verses_per_unit
+        if payload.time_lap_minutes is not None:
+            plan.time_lap_minutes = payload.time_lap_minutes
+        if payload.working_hours is not None:
+            plan.working_hours = payload.working_hours.model_dump()
         if payload.state is not None:
             plan.state = payload.state
         plan.updated_at = datetime.utcnow()
@@ -244,7 +255,12 @@ class PlanService:
         today = date.today()
         days_remaining = max(1, (new_target - today).days)
         frequency = plan.frequency or "daily"
-        target_units = days_remaining * (1 if frequency == "daily" else 7)
+        
+        from app.utils.time_helpers import calculate_active_minutes
+        active_mins_per_day = calculate_active_minutes(plan.working_hours)
+        deliveries_per_day = max(1, active_mins_per_day // plan.time_lap_minutes)
+        
+        target_units = days_remaining * (deliveries_per_day if frequency == "daily" else 7 * deliveries_per_day)
         target_units = max(1, target_units)
         base_verses_per_unit = max(1, remaining_verses // target_units)
         verses_per_unit = min(base_verses_per_unit, plan.max_verses_per_unit)
@@ -339,3 +355,42 @@ class PlanService:
         plan.updated_at = datetime.utcnow()
         await self.db.flush()
         return plan
+
+    async def get_plan_progress(self, plan_id: uuid.UUID) -> dict | None:
+        """Calculate progress statistics for a plan."""
+        plan = await self.get_plan(plan_id)
+        if not plan:
+            return None
+        
+        r = await self.db.execute(
+            select(ReadingUnit)
+            .where(ReadingUnit.plan_id == plan_id)
+            .order_by(ReadingUnit.unit_index)
+        )
+        units = r.scalars().all()
+        
+        total_units = len(units)
+        completed_units = sum(1 for u in units if u.state == "read")
+        
+        total_verses = sum(u.verse_end - u.verse_start + 1 for u in units)
+        completed_verses = sum(u.verse_end - u.verse_start + 1 for u in units if u.state == "read")
+        
+        # Daily history: group by read_at date
+        history_map = {}
+        for u in units:
+            if u.state == "read" and u.read_at:
+                d = u.read_at.date()
+                history_map[d] = history_map.get(d, 0) + (u.verse_end - u.verse_start + 1)
+        
+        daily_history = [
+            {"date": d, "verses_read": count} 
+            for d, count in sorted(history_map.items())
+        ]
+        
+        return {
+            "completed_units": completed_units,
+            "total_units": total_units,
+            "completed_verses": completed_verses,
+            "total_verses": total_verses,
+            "daily_history": daily_history
+        }

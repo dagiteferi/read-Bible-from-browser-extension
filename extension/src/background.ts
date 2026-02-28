@@ -1,13 +1,14 @@
-import { setupAlarms, scheduleSnooze } from './services/background/alarmManager';
+import { setupAlarms } from './services/background/alarmManager';
 import { createNotification, markUnitAsRead } from './services/background/notificationManager';
 import { checkDeliveryWindow } from './services/background/environmentDetector';
 import { syncOfflineActions } from './services/background/syncManager';
-import { getLocal, setLocal } from './services/storage/local';
+import { getLocal } from './services/storage/local';
 import { getSync } from './services/storage/sync';
 import { getOrCreateDeviceId } from './utils/deviceId';
 import { getNextUnit } from './services/api/plans';
 import { UserSettings } from './types/storage';
 import { Plan } from './types/plan';
+import { Unit } from './types/api';
 
 console.log('Service Worker Loaded');
 
@@ -26,11 +27,21 @@ chrome.runtime.onInstalled.addListener(async () => {
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== 'check-delivery') return;
 
-  console.log('Alarm "check-delivery" triggered.');
+  console.log('Alarm "check-delivery" triggered at:', new Date().toLocaleString());
 
   const currentPlan: Plan | null = await getLocal(ACTIVE_PLAN_KEY);
+  console.log('Current active plan in background:', currentPlan);
+
   if (!currentPlan || !currentPlan.id) {
-    console.log('No active plan found. Skipping delivery check.');
+    console.log('No active plan found or plan ID missing. Diagnostics:');
+    try {
+      const allLocal = await chrome.storage.local.get(null);
+      console.log('Storage (Local):', allLocal);
+      const allSync = await chrome.storage.sync.get(null);
+      console.log('Storage (Sync):', allSync);
+    } catch (e) {
+      console.error('Diagnostic error:', e);
+    }
     return;
   }
 
@@ -39,35 +50,77 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     workingHours: { start: '08:00', end: '17:00' },
   };
 
+  console.log('Using settings for delivery check:', userSettings);
   const canDeliver = await checkDeliveryWindow(userSettings.quietHours, userSettings.workingHours);
+
   if (!canDeliver) {
-    console.log('Cannot deliver notification now (outside delivery window).');
+    console.log('Notification delivery blocked by Quiet Hours or Working Hours window.');
     return;
   }
 
+  console.log('Delivery window open. Fetching next unit for plan ID:', currentPlan.id);
+
   try {
-    const unit = await getNextUnit(currentPlan.id);
-    if (unit) {
-      createNotification(unit);
+    const response = await getNextUnit(currentPlan.id);
+    console.log('Response from getNextUnit:', response);
+
+    if (response && response.unit) {
+      console.log('Units found! Creating notification for:', response.unit.book, response.unit.chapter);
+      createNotification(response.unit);
     } else {
-      console.log('No next unit available for delivery.');
+      console.log('No pending units found for this plan:', response?.message || 'Empty response');
     }
   } catch (error) {
-    console.error('Failed to fetch next unit:', error);
+    console.error('API Error while fetching next unit:', error);
   }
 });
 
 // Notification click handlers
 chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIndex) => {
   console.log('Notification button clicked:', notificationId, buttonIndex);
-  if (buttonIndex === 0) { // Mark as Read
+
+  if (buttonIndex === 0) { // Read Full
+    chrome.tabs.create({ url: `fullverse.html?id=${notificationId}` });
+  } else if (buttonIndex === 1) { // Mark as Read
     await markUnitAsRead(notificationId);
-    // Optionally, refresh plan progress in popup if it's open
-  } else if (buttonIndex === 1) { // Snooze
-    chrome.notifications.clear(notificationId);
-    scheduleSnooze(); // Schedule a new alarm for snooze
+  } else if (buttonIndex === 2) { // Copy & Share
+    try {
+      const storageKey = `unit_${notificationId}`;
+      const data = await chrome.storage.local.get(storageKey);
+      const unit = data[storageKey] as Unit;
+
+      if (unit) {
+        const reference = `${unit.book} ${unit.chapter}:${unit.verse_start}${unit.verse_end && unit.verse_end !== unit.verse_start ? '-' + unit.verse_end : ''}`;
+        const extensionUrl = `https://chromewebstore.google.com/detail/${chrome.runtime.id}`;
+        const shareText = `"${unit.text}"\n\n— ${reference}\n\nShared via Bible Reading Extension: ${extensionUrl}`;
+
+        // Attempting to copy using an offscreen document for better reliability in MV3
+        await copyToClipboard(shareText);
+
+        chrome.notifications.create('copy-success', {
+          type: 'basic',
+          iconUrl: 'icon-128.png',
+          title: 'Copied to Clipboard',
+          message: 'Scripture is ready to share.',
+          priority: 0
+        });
+      }
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+    }
   }
 });
+
+// Helper to handle clipboard in background (MV3 workaround)
+async function copyToClipboard(text: string) {
+  try {
+    // Current Chrome versions (116+) support this in service workers
+    await (navigator as any).clipboard.writeText(text);
+  } catch (err) {
+    console.warn('Direct clipboard access failed, this might happen in some environments. Error:', err);
+    // Future: Add offscreen document fallback if needed
+  }
+}
 
 chrome.notifications.onClicked.addListener((notificationId) => {
   console.log('Notification clicked:', notificationId);
@@ -75,16 +128,14 @@ chrome.notifications.onClicked.addListener((notificationId) => {
   chrome.tabs.create({ url: `fullverse.html?id=${notificationId}` });
 });
 
-// Listen for messages from other parts of the extension (e.g., popup)
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'refreshPlan') {
-    // Trigger a refresh of the plan data in the background
-    // This might involve re-fetching progress and updating local storage
+
     console.log('Received refreshPlan message from popup.');
-    // You might want to call refreshPlan from usePlanContext here, but that's in the UI thread.
-    // For background, you'd re-fetch and update storage directly.
+
     sendResponse({ status: 'Plan refresh initiated in background.' });
   }
 });
 
-export {};
+export { };

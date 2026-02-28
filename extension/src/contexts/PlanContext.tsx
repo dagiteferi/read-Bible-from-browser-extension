@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Plan, Progress } from '../types/plan';
 import { getPlanProgress } from '../services/api/plans';
 import { markUnitAsRead as apiMarkUnitAsRead } from '../services/api/units';
@@ -23,36 +23,23 @@ const PlanContext = createContext<PlanContextType | undefined>(undefined);
 
 const ACTIVE_PLAN_KEY = 'activePlan';
 
-export const PlanProvider = ({ children }) => {
+export const PlanProvider = ({ children }: { children: ReactNode }) => {
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const { queueOfflineAction, isOnline } = useOfflineQueue(); // Use the offline queue hook
 
-  useEffect(() => {
-    const loadActivePlan = async () => {
-      const storedPlan = await getLocal(ACTIVE_PLAN_KEY);
-      if (storedPlan) {
-        setCurrentPlan(storedPlan);
-      }
-    };
-    loadActivePlan();
-  }, []);
-
-  useEffect(() => {
-    if (currentPlan) {
-      refreshPlan();
-    }
-  }, [currentPlan?.id]); // Refresh when active plan changes
-
   const setActivePlan = async (plan: Plan | null) => {
+    console.log('[PlanContext] Setting active plan:', plan?.id || 'null');
     setCurrentPlan(plan);
     if (plan) {
       await setLocal(ACTIVE_PLAN_KEY, plan);
     } else {
       await setLocal(ACTIVE_PLAN_KEY, null);
     }
+    // Refresh to update UI and notify background
+    chrome.runtime.sendMessage({ action: 'refreshPlan' });
   };
 
   const refreshPlan = async () => {
@@ -68,6 +55,32 @@ export const PlanProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const loadActivePlan = async () => {
+      const storedPlan = await getLocal(ACTIVE_PLAN_KEY);
+      if (storedPlan) {
+        setCurrentPlan(storedPlan);
+      }
+    };
+    loadActivePlan();
+
+    // Listen for messages from background script
+    const messageListener = (message: any) => {
+      if (message.action === 'refreshPlan') {
+        console.log('[PlanContext] Received refreshPlan message from background');
+        refreshPlan();
+      }
+    };
+    chrome.runtime.onMessage.addListener(messageListener);
+    return () => chrome.runtime.onMessage.removeListener(messageListener);
+  }, []);
+
+  useEffect(() => {
+    if (currentPlan) {
+      refreshPlan();
+    }
+  }, [currentPlan?.id]); // Refresh when active plan changes
 
   const markUnitRead = async (unitId: string) => {
     if (!currentPlan?.id) return;
@@ -100,7 +113,13 @@ export const PlanProvider = ({ children }) => {
     }
     try {
       const response = await apiCreatePlan(planData);
-      const newPlan: Plan = { id: response.plan_id, ...planData, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+      const newPlan: Plan = {
+        ...planData,
+        id: response.plan_id,
+        max_verses_per_unit: planData.max_verses_per_unit || 10,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
       setActivePlan(newPlan);
       return newPlan;
     } catch (err) {

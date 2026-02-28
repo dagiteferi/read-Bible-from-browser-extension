@@ -2,21 +2,29 @@ import { markUnitAsRead as apiMarkUnitAsRead } from '../../services/api/units';
 import { Unit } from '../../types/api';
 
 export const createNotification = (unit: Unit) => {
+  const reference = `${unit.book} ${unit.chapter}:${unit.verse_start}${unit.verse_end && unit.verse_end !== unit.verse_start ? '-' + unit.verse_end : ''}`;
+
+  // Store unit data so the background script can access it on button click
+  const storageKey = `unit_${unit.id}`;
+  chrome.storage.local.set({ [storageKey]: unit });
+
   chrome.notifications.create(unit.id, {
     type: 'basic',
     iconUrl: 'icon-128.png',
-    title: 'Your Daily Scripture',
-    message: `${unit.book} ${unit.chapter}:${unit.verse_start}${unit.verse_end ? '-' + unit.verse_end : ''}`,
-    contextMessage: unit.text,
+    title: reference,
+    message: unit.text,
+    requireInteraction: true,
+    priority: 2,
     buttons: [
+      { title: 'Read Full' },
       { title: 'Mark as Read' },
-      { title: 'Snooze' }
+      { title: 'Copy & Share' }
     ]
-  }, (notificationId) => {
+  }, () => {
     if (chrome.runtime.lastError) {
       console.error('Error creating notification:', chrome.runtime.lastError);
     } else {
-      console.log('Notification created with ID:', notificationId);
+      console.log('Notification created for:', reference);
     }
   });
 };

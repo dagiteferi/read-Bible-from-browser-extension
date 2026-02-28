@@ -72,3 +72,22 @@ def next_valid_delivery_timestamp(
     if candidate <= from_dt:
         candidate += timedelta(days=1)
     return candidate
+def calculate_active_minutes(working_hours: dict | None) -> int:
+    """Calculate duration of working hours in minutes."""
+    if not working_hours:
+        return 1440  # Default to 24 hours if not set
+    start_s = working_hours.get("start")
+    end_s = working_hours.get("end")
+    if not start_s or not end_s:
+        return 1440
+    start_t = _parse_time(start_s)
+    end_t = _parse_time(end_s)
+    
+    start_mins = start_t.hour * 60 + start_t.minute
+    end_mins = end_t.hour * 60 + end_t.minute
+    
+    if start_mins <= end_mins:
+        return end_mins - start_mins
+    else:
+        # Overnight: (midnight - start) + end
+        return (1440 - start_mins) + end_mins

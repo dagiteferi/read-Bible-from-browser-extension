@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models import Plan, ReadingUnit
-from app.schemas.plan import PlanCreate, PlanUpdate, PlanResponse, PlanCalculateResponse, ReadingUnitInPlan
+from app.schemas.plan import PlanCreate, PlanUpdate, PlanResponse, PlanCalculateResponse, ReadingUnitInPlan, PlanProgress
 from app.schemas.unit import NextUnitResponse, ReadingUnitResponse
 from app.services.bible_service import BibleService
 from app.services.plan_service import PlanService
@@ -15,13 +15,23 @@ from app.services.scheduler_service import SchedulerService
 router = APIRouter()
 
 
+@router.get("/{id}/progress", response_model=PlanProgress)
+async def get_plan_progress(id: UUID, db: AsyncSession = Depends(get_db)):
+    """Return progress stats for the plan."""
+    svc = PlanService(db)
+    progress = await svc.get_plan_progress(id)
+    if not progress:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return progress
+
+
 @router.post("/create", response_model=dict)
 async def create_plan(payload: PlanCreate, db: AsyncSession = Depends(get_db)):
     """Create new plan. SRS: Precompute units; return plan ID."""
     svc = PlanService(db)
     try:
         plan = await svc.create_plan(payload.device_id, payload)
-        return {"id": str(plan.id), "message": "Plan created"}
+        return {"plan_id": str(plan.id), "message": "Plan created"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -54,8 +64,7 @@ async def get_plan(id: UUID, db: AsyncSession = Depends(get_db)):
             chapter=u.chapter,
             verse_start=u.verse_start,
             verse_end=u.verse_end,
-            verse_range={"start": u.verse_start, "end": u.verse_end},
-            index=u.unit_index,
+            unit_index=u.unit_index,
             state=u.state,
         )
         for u in units
@@ -68,7 +77,9 @@ async def get_plan(id: UUID, db: AsyncSession = Depends(get_db)):
         target_date=plan.target_date,
         frequency=plan.frequency,
         quiet_hours=plan.quiet_hours,
+        working_hours=plan.working_hours,
         max_verses_per_unit=plan.max_verses_per_unit,
+        time_lap_minutes=plan.time_lap_minutes,
         state=plan.state,
         units=unit_list,
     )
@@ -108,9 +119,8 @@ async def get_next_unit(id: UUID, db: AsyncSession = Depends(get_db)):
             chapter=unit.chapter,
             verse_start=unit.verse_start,
             verse_end=unit.verse_end,
-            verse_range={"start": unit.verse_start, "end": unit.verse_end},
             text=text,
-            index=unit.unit_index,
+            unit_index=unit.unit_index,
             state=unit.state,
         )
     )
