@@ -1,5 +1,4 @@
 export const setupAlarms = () => {
-  // Clear any existing alarms to prevent duplicates
   chrome.alarms.clearAll(() => {
     chrome.alarms.create('check-delivery', { periodInMinutes: 15 });
     console.log('Alarm "check-delivery" set for every 15 minutes.');
