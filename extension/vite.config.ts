@@ -1,10 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve, dirname } from 'path'; // Import dirname as well
-import { fileURLToPath } from 'url'; // Import fileURLToPath
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
-// Define __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -15,7 +14,7 @@ export default defineConfig({
       targets: [
         {
           src: resolve(__dirname, 'public/manifest.json'),
-          dest: '' // Copy to the root of the dist folder
+          dest: ''
         },
         {
           src: resolve(__dirname, 'public/icon-16.png'),

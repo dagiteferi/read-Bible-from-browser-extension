@@ -1,7 +1,5 @@
 export const handleError = (error: any, context: string = 'An unexpected error occurred') => {
   console.error(`Error in ${context}:`, error);
-  // In a real app, you might send this to an error tracking service
-  // or display a user-friendly message.
 };
 
 export const getErrorMessage = (error: any): string => {
