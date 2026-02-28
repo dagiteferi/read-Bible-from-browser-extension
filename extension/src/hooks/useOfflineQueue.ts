@@ -35,10 +35,8 @@ export const useOfflineQueue = () => {
   useEffect(() => {
     if (isOnline && queue.length > 0) {
       console.log('Online, attempting to sync offline actions...');
-      syncOfflineActions(); // Trigger background sync
-      // After triggering sync, the background script will update the local storage
-      // We can clear the queue here optimistically or wait for confirmation from background
-      setQueue([]); // Optimistically clear the queue
+      syncOfflineActions();
+      setQueue([]);
       setLocal(OFFLINE_QUEUE_KEY, []);
     }
   }, [isOnline, queue]);

@@ -30,7 +30,7 @@ export const Statistics: React.FC = () => {
         </div>
         <div>
           <p className="text-sm text-text-secondary dark:text-dark-text-secondary">Longest Streak</p>
-          <p className="text-xl font-bold text-amber-warm">0 days</p> {/* Placeholder */}
+          <p className="text-xl font-bold text-amber-warm">0 days</p>
         </div>
       </div>
     </Card>

@@ -3,7 +3,7 @@ import { Plan, Progress } from '../types/plan';
 import { getPlanProgress } from '../services/api/plans';
 import { markUnitAsRead as apiMarkUnitAsRead } from '../services/api/units';
 import { getLocal, setLocal } from '../services/storage/local';
-import { useOfflineQueue } from '../hooks/useOfflineQueue'; // Import the hook
+import { useOfflineQueue } from '../hooks/useOfflineQueue';
 import { CreatePlanRequest } from '../types/api';
 import { createPlan as apiCreatePlan } from '../services/api/plans';
 
@@ -28,7 +28,7 @@ export const PlanProvider = ({ children }) => {
   const [progress, setProgress] = useState<Progress | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const { queueOfflineAction, isOnline } = useOfflineQueue(); // Use the offline queue hook
+  const { queueOfflineAction, isOnline } = useOfflineQueue();
 
   useEffect(() => {
     const loadActivePlan = async () => {
@@ -44,7 +44,7 @@ export const PlanProvider = ({ children }) => {
     if (currentPlan) {
       refreshPlan();
     }
-  }, [currentPlan?.id]); // Refresh when active plan changes
+  }, [currentPlan?.id]);
 
   const setActivePlan = async (plan: Plan | null) => {
     setCurrentPlan(plan);
@@ -81,7 +81,7 @@ export const PlanProvider = ({ children }) => {
     }
     try {
       await apiMarkUnitAsRead(unitId);
-      await refreshPlan(); // Refresh progress after marking unit as read
+      await refreshPlan();
     } catch (err) {
       setError(err as Error);
     } finally {
