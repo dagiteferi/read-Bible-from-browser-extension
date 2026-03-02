@@ -58,7 +58,7 @@ graph TB
 
     Extension <-->|HTTPS API Calls| Backend
     ServiceWorker <-->|Fetch next verse| Backend
-    Backend <-->|SQLAlchemy (async)| Database
+    Backend <-->|SQLAlchemy async| Database
     Backend -->|Loads at startup| BibleData
 ```
 
