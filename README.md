@@ -44,16 +44,16 @@ The system is composed of two main components: a backend API and a browser exten
 ```mermaid
 graph TB
     subgraph "User's Browser"
-        Extension[Browser Extension<br>(React, TypeScript, Manifest V3)]
-        ServiceWorker[Service Worker<br>(background.ts for alarms, notifications)]
-        PopupUI[Popup UI<br>(Plan creation, progress, settings)]
-        LocalStorage[chrome.storage<br>(Offline cache for plans & progress)]
+        Extension["Browser Extension<br>(React, TypeScript, Manifest V3)"]
+        ServiceWorker["Service Worker<br>(background.ts for alarms, notifications)"]
+        PopupUI["Popup UI<br>(Plan creation, progress, settings)"]
+        LocalStorage["chrome.storage<br>(Offline cache for plans & progress)"]
     end
 
     subgraph "Cloud Infrastructure (e.g., Render)"
-        Backend[FastAPI Backend<br>(Python, Uvicorn/Gunicorn)]
-        Database[(PostgreSQL Database<br>(Stores plans, progress, device IDs))]
-        BibleData[In-Memory Bible Cache<br>(Loaded from static JSON files)]
+        Backend["FastAPI Backend<br>(Python, Uvicorn/Gunicorn)"]
+        Database[("PostgreSQL Database<br>(Stores plans, progress, device IDs)")]
+        BibleData["In-Memory Bible Cache<br>(Loaded from static JSON files)"]
     end
 
     Extension <-->|HTTPS API Calls| Backend
