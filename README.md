@@ -109,14 +109,7 @@ Follow these instructions to set up the project for local development.
     docker-compose up -d postgres
     ```
 
-4.  **Prepare the Database:**
-    This script runs the Alembic database migrations to create the necessary tables.
-    ```bash
-    ./scripts/init_db.sh
-    ```
-    *Note: The backend service itself is intended to be run directly on the host for easier development, but a Dockerfile is provided for production deployment.*
-
-5.  **Install Dependencies and Run:**
+4.  **Install Dependencies and Run:**
     ```bash
     # Navigate to the backend directory
     cd backend
