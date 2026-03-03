@@ -4,7 +4,7 @@
 
 A feature-rich, notification-driven browser extension for a personalized and immersive Bible reading experience, built with a modern tech stack.
 
-This project provides a robust platform for users to engage with Scripture through a browser extension. It features a powerful FastAPI backend and a responsive React frontend, designed for reliability, scalability, and a seamless user experience. The system guarantees zero verse loss, respects user-defined quiet hours, and intelligently adapts to interruptions.
+By using this extension, users will be able to connect with scripture and have access to a reliable, scalable, and intuitive experience likely to ensure zero loss of verses at any time of the day and respect for user-defined quiet hours as well as adapt intelligently to interruptions. There are many different elements of the system, including: A responsive React front end, robust FastAPI back end, and the ability to provide an easily accessible scripture database that provides secure and confidential results for all individuals registered in the system.
 
 ---
 
@@ -62,7 +62,7 @@ graph TB
     Backend -->|Loads at startup| BibleData
 ```
 
-- **Backend**: A monolithic FastAPI service built with Python. It manages all business logic, including creating reading plans, segmenting scripture, and serving verses. It connects to a PostgreSQL database to persist user and plan data. For performance, the entire Bible text is loaded into an in-memory cache at startup from static JSON files.
+- **Backend**: A Python-based monolithic FastAPI service. It oversees all business logic, including serving verses, segmenting scripture, and making reading schedules. To store user and plan data, it establishes a connection to a PostgreSQL database. At startup, static JSON files are used to load the entire Bible text into an in-memory cache for performance.
 - **Frontend**: A modern browser extension built with React, TypeScript, and Vite. It follows the Manifest V3 specification. A background service worker handles alarms and triggers notifications, while the popup UI allows users to manage their reading plans and settings.
 
 For a more in-depth explanation of the architecture, see the [Solution Architecture Document](./docs/Architecture.md).
