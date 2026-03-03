@@ -63,7 +63,7 @@ graph TB
 ```
 
 - **Backend**: A Python-based monolithic FastAPI service. It oversees all business logic, including serving verses, segmenting scripture, and making reading schedules. To store user and plan data, it establishes a connection to a PostgreSQL database. At startup, static JSON files are used to load the entire Bible text into an in-memory cache for performance.
-- **Frontend**: A modern browser extension built with React, TypeScript, and Vite. It follows the Manifest V3 specification. A background service worker handles alarms and triggers notifications, while the popup UI allows users to manage their reading plans and settings.
+- **Frontend**:A contemporary browser extension made with Vite, TypeScript, and React. The Manifest V3 specification is adhered to. Alarms and notifications are handled by a background service worker, and users can control their reading schedules and preferences through the popup user interface.
 
 For a more in-depth explanation of the architecture, see the [Solution Architecture Document](./docs/Architecture.md).
 
